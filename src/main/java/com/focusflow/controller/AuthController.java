@@ -55,13 +55,6 @@ public class AuthController {
         return "dashboard";
     }
 
-    @GetMapping("/tasks")
-    public String tasksPage(Model model, Principal principal) {
-        User user = repo.findByEmail(principal.getName()).orElse(null);
-        model.addAttribute("user", user);
-        return "tasks";
-    }
-
     @GetMapping("/projects")
     public String projectsPage(Model model, Principal principal) {
         User user = repo.findByEmail(principal.getName()).orElse(null);

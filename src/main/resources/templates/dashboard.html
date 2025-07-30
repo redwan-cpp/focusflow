@@ -247,6 +247,8 @@
       position: sticky;
       top: 6rem;
       height: fit-content;
+      width: 320px;
+      min-width: 320px;
     }
 
     /* Clock Widget */
@@ -384,6 +386,10 @@
       border-radius: 12px;
       padding: 1.5rem;
       box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      width: 100%;
+      box-sizing: border-box;
+      min-width: 0;
+      overflow-x: hidden;
     }
 
     .calendar-header {
@@ -416,6 +422,10 @@
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 0.5rem;
+      width: 100%;
+      box-sizing: border-box;
+      min-width: 0;
+      overflow-x: hidden;
     }
 
     .calendar-day-header {
@@ -663,7 +673,7 @@
           <button id="calendar-next"><i class="bi bi-chevron-right"></i></button>
         </div>
       </div>
-      <div class="calendar-grid" id="calendar-days-header">
+      <div class="calendar-grid" id="calendar-grid">
         <div class="calendar-day-header">Sun</div>
         <div class="calendar-day-header">Mon</div>
         <div class="calendar-day-header">Tue</div>
@@ -671,8 +681,8 @@
         <div class="calendar-day-header">Thu</div>
         <div class="calendar-day-header">Fri</div>
         <div class="calendar-day-header">Sat</div>
+        <!-- Days will be appended here by JS -->
       </div>
-      <div class="calendar-grid" id="calendar-days"></div>
     </div>
     <div class="stats-widget">
       <div class="stats-header">
@@ -833,44 +843,45 @@
   // Calendar Functionality
   function renderCalendar(date = new Date()) {
     const monthElement = document.querySelector('.calendar-header h3');
-    const daysElement = document.getElementById('calendar-days');
-    
+    const gridElement = document.getElementById('calendar-grid');
+
     const year = date.getFullYear();
     const month = date.getMonth();
-    
-    monthElement.textContent = new Date(year, month).toLocaleDateString('en-US', { 
-      month: 'long', 
-      year: 'numeric' 
+
+    monthElement.textContent = new Date(year, month).toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric'
     });
-    
+
+    // Remove all day cells (keep the first 7 header cells)
+    while (gridElement.children.length > 7) {
+      gridElement.removeChild(gridElement.lastChild);
+    }
+
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const daysInPrevMonth = new Date(year, month, 0).getDate();
-    
-    daysElement.innerHTML = '';
-    
+
     // Previous month days (fill to Sunday)
     for (let i = 0; i < firstDay; i++) {
       const dayElement = document.createElement('div');
       dayElement.className = 'calendar-day other-month';
       dayElement.textContent = daysInPrevMonth - firstDay + i + 1;
-      daysElement.appendChild(dayElement);
+      gridElement.appendChild(dayElement);
     }
-    
+
     // Current month days
     const today = new Date();
     for (let i = 1; i <= daysInMonth; i++) {
       const dayElement = document.createElement('div');
       dayElement.className = 'calendar-day';
       dayElement.textContent = i;
-      
       if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
         dayElement.classList.add('today');
       }
-      
-      daysElement.appendChild(dayElement);
+      gridElement.appendChild(dayElement);
     }
-    
+
     // Next month days (fill to Saturday)
     const totalCells = firstDay + daysInMonth;
     const remainingCells = (7 - (totalCells % 7)) % 7;
@@ -878,7 +889,7 @@
       const dayElement = document.createElement('div');
       dayElement.className = 'calendar-day other-month';
       dayElement.textContent = i;
-      daysElement.appendChild(dayElement);
+      gridElement.appendChild(dayElement);
     }
   }
   

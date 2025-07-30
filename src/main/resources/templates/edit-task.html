@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Task</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Segoe UI', 'Poppins', sans-serif;
+    }
+    .main-content {
+      background: #161b22;
+      border-radius: 12px;
+      border: 1px solid #30363d;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      max-width: 600px;
+      margin: 3rem auto;
+      padding: 2rem;
+    }
+    h2 {
+      color: #58a6ff;
+      margin-bottom: 2rem;
+    }
+    .form-control, select {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .btn-primary {
+      background-color: #238636;
+      border-color: #2ea043;
+      border-radius: 8px;
+    }
+    .btn-primary:hover {
+      background-color: #2ea043;
+      border-color: #3fb950;
+    }
+    a {
+      color: #58a6ff;
+      margin-left: 1rem;
+      text-decoration: none;
+    }
+    a:hover {
+      color: #238636;
+    }
+  </style>
+</head>
+<body>
+  <div class="main-content">
+    <h2>Edit Task</h2>
+    <form th:action="@{'/tasks/' + ${editTask.id} + '/edit'}" method="post" th:object="${editTask}">
+      <input type="text" th:field="*{title}" placeholder="Task title" class="form-control" required />
+      <input type="text" th:field="*{description}" placeholder="Description" class="form-control" />
+      <input type="datetime-local" th:field="*{dueDate}" class="form-control" />
+      <select th:field="*{priority}" class="form-control">
+        <option value="LOW">Low</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HIGH">High</option>
+      </select>
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="/tasks">Cancel</a>
+    </form>
+  </div>
+</body>
+</html>
