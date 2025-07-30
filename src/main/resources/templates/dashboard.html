@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | FocusFlow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap & Fonts -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --primary-dark: #1e40af;
+      --secondary: #60a5fa;
+      --bg-color: #121212;
+      --card-bg: #1E1E1E;
+      --text-primary: #E0E0E0;
+      --text-secondary: #9E9E9E;
+      --border: #424242;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --success: #2563eb;
+      --warning: #60a5fa;
+    }
+
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Segoe UI', 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* Dark Mode Header */
+    .navbar {
+      background-color: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 1rem 2rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #58a6ff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .navbar-brand i {
+      color: var(--secondary);
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: #58a6ff;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    /* Dashboard Layout */
+    .dashboard-container {
+      display: grid;
+      grid-template-columns: 250px 1fr 300px;
+      gap: 1.5rem;
+      padding: 2rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1200px) {
+      .dashboard-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Sidebar Navigation */
+    .sidebar-nav {
+      background: #161b22;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      height: fit-content;
+      position: sticky;
+      top: 6rem;
+      border: 1px solid #30363d;
+    }
+
+    .nav-item {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #8b949e;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .nav-item:hover {
+      background-color: #21262d;
+      color: #58a6ff;
+    }
+
+    .nav-item.active {
+      background-color: #21262d;
+      color: #58a6ff;
+      font-weight: 500;
+    }
+
+    .nav-item i {
+      font-size: 1.1rem;
+    }
+
+    /* Main Content */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Welcome Banner */
+    .welcome-banner {
+      background: linear-gradient(135deg, #161b22, #21262d);
+      color: #c9d1d9;
+      border-radius: 12px;
+      padding: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      border: 1px solid #30363d;
+    }
+
+    .welcome-text h2 {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-text p {
+      opacity: 0.9;
+      margin-bottom: 0;
+    }
+
+    .welcome-icon {
+      font-size: 3rem;
+      opacity: 0.2;
+    }
+
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      border-color: var(--primary);
+    }
+
+    .card h3 {
+      color: #58a6ff;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .card h3 i {
+      color: var(--secondary);
+    }
+
+    .card p {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+    }
+
+    .card-stats {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .card-btn {
+      background-color: #238636;
+      border-color: #2ea043;
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s, border 0.2s;
+    }
+
+    .card-btn:hover {
+      background-color: #2ea043;
+      border-color: #3fb950;
+    }
+
+    /* Right Sidebar */
+    .right-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      position: sticky;
+      top: 6rem;
+      height: fit-content;
+    }
+
+    /* Clock Widget */
+    .clock-widget {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      text-align: center;
+    }
+
+    .clock-time {
+      font-size: 2.5rem;
+      font-weight: 300;
+      margin-bottom: 0.5rem;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .clock-date {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    /* Focus Timer Widget */
+    .timer-widget {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    .timer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .timer-header h3 {
+      color: var(--primary);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .timer-display {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      margin: 1rem auto;
+    }
+
+    .progress-circle {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .progress-circle-bg {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 6;
+    }
+
+    .progress-circle-fill {
+      fill: none;
+      stroke: var(--secondary);
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 565.2;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    .timer-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2.5rem;
+      font-weight: 300;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .timer-input {
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 2.5rem;
+      font-weight: 300;
+      width: 120px;
+      text-align: center;
+      outline: none;
+      display: none;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .timer-controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .timer-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.5rem 1.25rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .timer-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    #timer-reset-btn {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    #timer-reset-btn:hover {
+      background: rgba(37, 99, 235, 0.1);
+    }
+
+    /* Calendar Widget */
+    .calendar-widget {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .calendar-header h3 {
+      color: var(--primary);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .calendar-nav button {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+      color: var(--text-primary);
+    }
+
+    .calendar-nav button:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+    }
+
+    .calendar-day-header {
+      font-size: 0.8rem;
+      text-align: center;
+      color: var(--text-secondary);
+      font-weight: 500;
+      padding: 0.5rem;
+    }
+
+    .calendar-day {
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 0.5rem;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .calendar-day:hover {
+      background: rgba(37, 99, 235, 0.1);
+    }
+
+    .calendar-day.today {
+      background-color: var(--secondary);
+      color: white;
+      font-weight: 500;
+    }
+
+    .calendar-day.other-month {
+      color: #616161;
+    }
+
+    /* Stats Widget */
+    .stats-widget {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    .stats-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .stats-header h3 {
+      color: var(--primary);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .stats-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stats-item:last-child {
+      border-bottom: none;
+    }
+
+    .stats-label {
+      color: var(--text-secondary);
+    }
+
+    .stats-value {
+      font-weight: 500;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .dashboard-container {
+        padding: 1rem;
+      }
+      
+      .welcome-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+      }
+      
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar d-flex justify-content-between">
+  <div class="navbar-brand">
+    <i class="bi bi-tree"></i>
+    <span>FocusFlow</span>
+  </div>
+  <div class="nav-right">
+    <div class="user-avatar" th:text="${user.name.substring(0,1)}"></div>
+    <a href="/logout" class="btn btn-sm btn-outline-primary">Logout</a>
+  </div>
+</nav>
+
+<div class="dashboard-container">
+  <!-- Left Sidebar Navigation -->
+  <div class="sidebar-nav">
+    <a href="/dashboard" class="nav-item active">
+      <i class="bi bi-speedometer2"></i>
+      <span>Dashboard</span>
+    </a>
+    <a href="/tasks" class="nav-item">
+      <i class="bi bi-list-check"></i>
+      <span>Tasks</span>
+    </a>
+    <a href="/projects" class="nav-item">
+      <i class="bi bi-journal-bookmark"></i>
+      <span>Projects</span>
+    </a>
+    <a href="/focus-room" class="nav-item">
+      <i class="bi bi-people"></i>
+      <span>Focus Rooms</span>
+    </a>
+    <a href="/notes" class="nav-item">
+      <i class="bi bi-chat-square-text"></i>
+      <span>Notes</span>
+    </a>
+    <a href="/resources" class="nav-item">
+      <i class="bi bi-collection"></i>
+      <span>Resources</span>
+    </a>
+    <a href="/stats" class="nav-item">
+      <i class="bi bi-graph-up"></i>
+      <span>Statistics</span>
+    </a>
+    <a href="/profile" class="nav-item">
+      <i class="bi bi-person"></i>
+      <span>Profile</span>
+    </a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h2>Welcome back, <span th:text="${user.name}"></span>!</h2>
+        <p>Here's what's happening with your focus sessions today</p>
+      </div>
+      <div class="welcome-icon">
+        <i class="bi bi-emoji-smile"></i>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card">
+        <h3><i class="bi bi-list-check"></i> Tasks</h3>
+        <p>You have 5 pending tasks to complete today. Stay focused and productive with your to-do list.</p>
+        <div class="card-footer">
+          <span class="card-stats">3 high priority</span>
+          <a href="/tasks" class="card-btn">View Tasks</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><i class="bi bi-journal-bookmark"></i> Projects</h3>
+        <p>Track your ongoing courses and learning progress. 2 projects are nearing their deadlines.</p>
+        <div class="card-footer">
+          <span class="card-stats">4 active projects</span>
+          <a href="/projects" class="card-btn">View Projects</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><i class="bi bi-people"></i> Focus Rooms</h3>
+        <p>Join live study sessions with 12 active users currently focusing together in 3 rooms.</p>
+        <div class="card-footer">
+          <span class="card-stats">3 rooms available</span>
+          <a href="/focus-room" class="card-btn">Browse Rooms</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><i class="bi bi-chat-square-text"></i> Notes</h3>
+        <p>Access and organize your study notes. You've created 15 notes across different subjects.</p>
+        <div class="card-footer">
+          <span class="card-stats">5 updated today</span>
+          <a href="/notes" class="card-btn">View Notes</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><i class="bi bi-collection"></i> Resources</h3>
+        <p>Your saved study materials and reference documents. 8 new resources added this week.</p>
+        <div class="card-footer">
+          <span class="card-stats">42 total resources</span>
+          <a href="/resources" class="card-btn">View Resources</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><i class="bi bi-graph-up"></i> Statistics</h3>
+        <p>Your productivity metrics. 12 hours focused this week with 85% task completion rate.</p>
+        <div class="card-footer">
+          <span class="card-stats">+8% from last week</span>
+          <a href="/stats" class="card-btn">View Stats</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Sidebar -->
+  <div class="right-sidebar">
+    <div class="clock-widget">
+      <div class="clock-time" id="clock-time">00:00:00</div>
+      <div class="clock-date" id="clock-date">Monday, January 1, 2023</div>
+    </div>
+
+    <div class="timer-widget">
+      <div class="timer-header">
+        <h3>Focus Timer</h3>
+        <span class="badge bg-success" id="timer-state">Ready</span>
+      </div>
+      
+      <div class="timer-display">
+        <svg class="progress-circle" viewBox="0 0 200 200">
+          <circle class="progress-circle-bg" cx="100" cy="100" r="90"></circle>
+          <circle class="progress-circle-fill" cx="100" cy="100" r="90"></circle>
+        </svg>
+        <div class="timer-text" id="timer-text">30:00</div>
+        <input type="text" class="timer-input" id="timer-input" maxlength="5">
+      </div>
+      
+      <div class="timer-controls">
+        <button class="timer-btn" id="timer-reset-btn">Reset</button>
+        <button class="timer-btn" id="timer-start-btn">Start</button>
+      </div>
+    </div>
+
+    <div class="calendar-widget">
+      <div class="calendar-header">
+        <h3>Calendar</h3>
+        <div class="calendar-nav">
+          <button id="calendar-prev"><i class="bi bi-chevron-left"></i></button>
+          <button id="calendar-next"><i class="bi bi-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="calendar-grid" id="calendar-days-header">
+        <div class="calendar-day-header">Sun</div>
+        <div class="calendar-day-header">Mon</div>
+        <div class="calendar-day-header">Tue</div>
+        <div class="calendar-day-header">Wed</div>
+        <div class="calendar-day-header">Thu</div>
+        <div class="calendar-day-header">Fri</div>
+        <div class="calendar-day-header">Sat</div>
+      </div>
+      <div class="calendar-grid" id="calendar-days"></div>
+    </div>
+    <div class="stats-widget">
+      <div class="stats-header">
+        <h3>Today's Stats</h3>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">Focus Time</span>
+        <span class="stats-value">2h 45m</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">Tasks Completed</span>
+        <span class="stats-value">7/12</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">Pomodoros</span>
+        <span class="stats-value">5</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">Productivity</span>
+        <span class="stats-value text-success">82%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Clock Functionality
+  function updateClock() {
+    const now = new Date();
+    const clockTime = document.getElementById('clock-time');
+    const clockDate = document.getElementById('clock-date');
+    
+    // Format time
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    clockTime.textContent = `${hours}:${minutes}:${seconds}`;
+    
+    // Format date
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    clockDate.textContent = now.toLocaleDateString('en-US', options);
+  }
+  
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // Timer Functionality
+  const timerText = document.getElementById('timer-text');
+  const timerInput = document.getElementById('timer-input');
+  const startBtn = document.getElementById('timer-start-btn');
+  const resetBtn = document.getElementById('timer-reset-btn');
+  const progressFill = document.querySelector('.progress-circle-fill');
+  const timerState = document.getElementById('timer-state');
+  
+  let totalSeconds = 30 * 60; // 30 minutes default
+  let remainingSeconds = totalSeconds;
+  let timerInterval;
+  let isRunning = false;
+  const circumference = 565.2; // 2πr (r=90)
+  
+  function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const secs = (seconds % 60).toString().padStart(2, '0');
+    return `${mins}:${secs}`;
+  }
+  
+  function updateTimerDisplay() {
+    timerText.textContent = formatTime(remainingSeconds);
+    const progress = 1 - (remainingSeconds / totalSeconds);
+    progressFill.style.strokeDashoffset = circumference * (1 - progress);
+  }
+  
+  function startTimer() {
+    if (isRunning) return;
+    
+    isRunning = true;
+    startBtn.textContent = 'Pause';
+    timerState.textContent = 'Running';
+    timerState.className = 'badge bg-warning';
+    
+    timerInterval = setInterval(() => {
+      remainingSeconds--;
+      updateTimerDisplay();
+      
+      if (remainingSeconds <= 0) {
+        clearInterval(timerInterval);
+        isRunning = false;
+        startBtn.textContent = 'Start';
+        timerState.textContent = 'Completed';
+        timerState.className = 'badge bg-success';
+        alert('Focus session completed! Take a short break.');
+      }
+    }, 1000);
+  }
+  
+  function pauseTimer() {
+    clearInterval(timerInterval);
+    isRunning = false;
+    startBtn.textContent = 'Start';
+    timerState.textContent = 'Paused';
+    timerState.className = 'badge bg-secondary';
+  }
+  
+  function resetTimer() {
+    clearInterval(timerInterval);
+    isRunning = false;
+    remainingSeconds = totalSeconds;
+    updateTimerDisplay();
+    startBtn.textContent = 'Start';
+    timerState.textContent = 'Ready';
+    timerState.className = 'badge bg-success';
+  }
+  
+  function parseTimeInput(input) {
+    const parts = input.split(':');
+    if (parts.length !== 2) return null;
+    
+    const minutes = parseInt(parts[0]);
+    const seconds = parseInt(parts[1]);
+    
+    if (isNaN(minutes) || isNaN(seconds)) return null;
+    if (minutes < 0 || seconds < 0 || seconds > 59) return null;
+    
+    return (minutes * 60) + seconds;
+  }
+  
+  timerText.addEventListener('dblclick', () => {
+    timerText.style.display = 'none';
+    timerInput.value = formatTime(remainingSeconds);
+    timerInput.style.display = 'block';
+    timerInput.focus();
+    timerInput.select();
+  });
+  
+  timerInput.addEventListener('blur', () => {
+    const newTime = parseTimeInput(timerInput.value);
+    if (newTime !== null) {
+      totalSeconds = newTime;
+      remainingSeconds = newTime;
+      updateTimerDisplay();
+    }
+    timerInput.style.display = 'none';
+    timerText.style.display = 'block';
+  });
+  
+  timerInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') timerInput.blur();
+  });
+  
+  startBtn.addEventListener('click', () => {
+    if (isRunning) pauseTimer();
+    else startTimer();
+  });
+  
+  resetBtn.addEventListener('click', resetTimer);
+  updateTimerDisplay();
+  
+  // Calendar Functionality
+  function renderCalendar(date = new Date()) {
+    const monthElement = document.querySelector('.calendar-header h3');
+    const daysElement = document.getElementById('calendar-days');
+    
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    
+    monthElement.textContent = new Date(year, month).toLocaleDateString('en-US', { 
+      month: 'long', 
+      year: 'numeric' 
+    });
+    
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+    
+    daysElement.innerHTML = '';
+    
+    // Previous month days (fill to Sunday)
+    for (let i = 0; i < firstDay; i++) {
+      const dayElement = document.createElement('div');
+      dayElement.className = 'calendar-day other-month';
+      dayElement.textContent = daysInPrevMonth - firstDay + i + 1;
+      daysElement.appendChild(dayElement);
+    }
+    
+    // Current month days
+    const today = new Date();
+    for (let i = 1; i <= daysInMonth; i++) {
+      const dayElement = document.createElement('div');
+      dayElement.className = 'calendar-day';
+      dayElement.textContent = i;
+      
+      if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+        dayElement.classList.add('today');
+      }
+      
+      daysElement.appendChild(dayElement);
+    }
+    
+    // Next month days (fill to Saturday)
+    const totalCells = firstDay + daysInMonth;
+    const remainingCells = (7 - (totalCells % 7)) % 7;
+    for (let i = 1; i <= remainingCells; i++) {
+      const dayElement = document.createElement('div');
+      dayElement.className = 'calendar-day other-month';
+      dayElement.textContent = i;
+      daysElement.appendChild(dayElement);
+    }
+  }
+  
+  document.getElementById('calendar-prev').addEventListener('click', () => {
+    const currentMonth = document.querySelector('.calendar-header h3').textContent;
+    const date = new Date(currentMonth + ' 1');
+    date.setMonth(date.getMonth() - 1);
+    renderCalendar(date);
+  });
+  
+  document.getElementById('calendar-next').addEventListener('click', () => {
+    const currentMonth = document.querySelector('.calendar-header h3').textContent;
+    const date = new Date(currentMonth + ' 1');
+    date.setMonth(date.getMonth() + 1);
+    renderCalendar(date);
+  });
+  
+  renderCalendar();
+</script>
+
+</body>
+</html>
