@@ -148,13 +148,27 @@
         .btn, .btn-primary, .btn-outline-primary {
             border-radius: 8px;
         }
+        .logo-link {
+            text-decoration: none;
+            color: #c9d1d9;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s;
+        }
+        .logo-link:hover {
+            color: #58a6ff;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
 <nav class="navbar d-flex justify-content-between">
     <div class="navbar-brand">
-        <i class="bi bi-tree"></i>
-        <span>FocusFlow</span>
+        <a href="/dashboard" class="logo-link">
+            <i class="bi bi-tree"></i>
+            <span>FocusFlow</span>
+        </a>
     </div>
     <div class="nav-right">
         <div class="user-avatar" th:text="${user.name.substring(0,1)}"></div>
