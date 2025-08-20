@@ -5,6 +5,7 @@ import com.focusflow.model.Resource;
 import com.focusflow.model.User;
 import com.focusflow.repository.ProjectRepository;
 import com.focusflow.repository.ResourceRepository;
+import com.focusflow.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,11 +33,18 @@ public class ResourceController {
     @Autowired
     private ProjectRepository projectRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private static final String UPLOAD_DIR = "uploads/";
 
     @GetMapping
     public String resourcesPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        User user = (User) userDetails;
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        
         List<Resource> resources = resourceRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
         List<Project> projects = projectRepository.findAllByUser(user);
         
@@ -49,7 +57,11 @@ public class ResourceController {
     @GetMapping("/project/{projectId}")
     public String projectResources(@AuthenticationPrincipal UserDetails userDetails, 
                                  @PathVariable Long projectId, Model model) {
-        User user = (User) userDetails;
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+        if (user == null) {
+            return "redirect:/login";
+        }
+        
         List<Resource> resources = resourceRepository.findByUserIdAndProjectIdOrderByCreatedAtDesc(user.getId(), projectId);
         Optional<Project> project = projectRepository.findById(projectId);
         List<Project> projects = projectRepository.findAllByUser(user);
@@ -71,7 +83,12 @@ public class ResourceController {
                             @RequestParam(value = "file", required = false) MultipartFile file,
                             RedirectAttributes redirectAttributes) {
         
-        User user = (User) userDetails;
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("error", "User not found");
+            return "redirect:/resources";
+        }
+        
         Optional<Project> project = projectRepository.findById(projectId);
         
         if (!project.isPresent()) {
@@ -130,7 +147,12 @@ public class ResourceController {
                              @RequestParam(value = "url", required = false) String url,
                              RedirectAttributes redirectAttributes) {
         
-        User user = (User) userDetails;
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("error", "User not found");
+            return "redirect:/resources";
+        }
+        
         Optional<Resource> resourceOpt = resourceRepository.findById(id);
         
         if (!resourceOpt.isPresent()) {
@@ -168,7 +190,12 @@ public class ResourceController {
                                @PathVariable Long id,
                                RedirectAttributes redirectAttributes) {
         
-        User user = (User) userDetails;
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("error", "User not found");
+            return "redirect:/resources";
+        }
+        
         Optional<Resource> resourceOpt = resourceRepository.findById(id);
         
         if (!resourceOpt.isPresent()) {
