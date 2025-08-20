@@ -117,6 +117,12 @@ public class ResourceController {
             resource.setFileType("LINK");
         } else if (file != null && !file.isEmpty()) {
             try {
+                // Check file size (50MB limit)
+                if (file.getSize() > 50 * 1024 * 1024) {
+                    redirectAttributes.addFlashAttribute("error", "File size too large. Maximum size is 50MB.");
+                    return "redirect:/resources";
+                }
+
                 // Create upload directory if it doesn't exist
                 Path uploadPath = Paths.get(UPLOAD_DIR);
                 if (!Files.exists(uploadPath)) {
@@ -125,6 +131,11 @@ public class ResourceController {
 
                 // Generate unique filename
                 String originalFilename = file.getOriginalFilename();
+                if (originalFilename == null || originalFilename.isEmpty()) {
+                    redirectAttributes.addFlashAttribute("error", "Invalid filename");
+                    return "redirect:/resources";
+                }
+                
                 String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
                 
@@ -139,6 +150,9 @@ public class ResourceController {
                 resource.setUrl("/uploads/" + uniqueFilename);
             } catch (IOException e) {
                 redirectAttributes.addFlashAttribute("error", "Failed to upload file: " + e.getMessage());
+                return "redirect:/resources";
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Unexpected error during file upload: " + e.getMessage());
                 return "redirect:/resources";
             }
         }

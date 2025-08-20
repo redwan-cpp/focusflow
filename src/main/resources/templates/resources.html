@@ -442,7 +442,7 @@
                             <i class="bi bi-cloud-upload"></i>
                             <p>Drag and drop files here or click to browse</p>
                             <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" style="display: none;">
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('file').click()">
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="chooseFileBtn">
                                 Choose File
                             </button>
                         </div>
@@ -533,8 +533,21 @@
     const fileInput = document.getElementById('file');
     const fileInfo = document.getElementById('fileInfo');
     const fileName = document.getElementById('fileName');
+    const chooseFileBtn = document.getElementById('chooseFileBtn');
 
-    fileUploadArea.addEventListener('click', () => fileInput.click());
+    // Single click handler for the button
+    chooseFileBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        fileInput.click();
+    });
+    
+    // Click handler for the upload area (but not the button)
+    fileUploadArea.addEventListener('click', (e) => {
+        if (e.target !== chooseFileBtn && !chooseFileBtn.contains(e.target)) {
+            fileInput.click();
+        }
+    });
     
     fileInput.addEventListener('change', function() {
         if (this.files.length > 0) {
