@@ -18,7 +18,8 @@ public class Resource {
 
     private String title;
     private String url;
-    private String fileName; // For uploaded files
+    private String fileName; // Original filename for display
+    private String filePath; // Actual file path on server
     private String fileType; // PDF, DOC, IMAGE, LINK
     private String description;
     private String fileSize; // For uploaded files
@@ -91,6 +92,13 @@ public class Resource {
         if (url == null || url.isBlank()) {
             return "";
         }
+        
+        // For uploaded files, show just the filename
+        if (fileType != null && !fileType.equals("LINK") && fileName != null) {
+            return fileName;
+        }
+        
+        // For links, clean up the URL
         try {
             URI parsed = new URI(url);
             String host = parsed.getHost();
@@ -110,8 +118,8 @@ public class Resource {
             if (path != null && !path.isEmpty() && !"/".equals(path)) {
                 display += path;
             }
-            if (display.length() > 60) {
-                display = display.substring(0, 57) + "...";
+            if (display.length() > 40) {
+                display = display.substring(0, 37) + "...";
             }
             return display;
         } catch (Exception e) {

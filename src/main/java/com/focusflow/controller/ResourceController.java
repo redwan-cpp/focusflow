@@ -144,7 +144,8 @@ public class ResourceController {
                 Files.copy(file.getInputStream(), filePath);
 
                 // Set resource properties
-                resource.setFileName(uniqueFilename);
+                resource.setFileName(originalFilename); // Store original filename for display
+                resource.setFilePath(uniqueFilename); // Store unique filename for server path
                 resource.setFileType(getFileType(fileExtension));
                 resource.setFileSize(formatFileSize(file.getSize()));
                 resource.setUrl("/uploads/" + uniqueFilename);
