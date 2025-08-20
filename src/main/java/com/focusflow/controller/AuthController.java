@@ -55,27 +55,6 @@ public class AuthController {
         return "dashboard";
     }
 
-    @GetMapping("/projects")
-    public String projectsPage(Model model, Principal principal) {
-        User user = repo.findByEmail(principal.getName()).orElse(null);
-        model.addAttribute("user", user);
-        return "projects";
-    }
-
-    @GetMapping("/focus-room")
-    public String focusRoomPage(Model model, Principal principal) {
-        User user = repo.findByEmail(principal.getName()).orElse(null);
-        model.addAttribute("user", user);
-        return "focus-room";
-    }
-
-    @GetMapping("/notes")
-    public String notesPage(Model model, Principal principal) {
-        User user = repo.findByEmail(principal.getName()).orElse(null);
-        model.addAttribute("user", user);
-        return "notes";
-    }
-
     @GetMapping("/resources")
     public String resourcesPage(Model model, Principal principal) {
         User user = repo.findByEmail(principal.getName()).orElse(null);

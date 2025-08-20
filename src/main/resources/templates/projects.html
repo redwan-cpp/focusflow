@@ -5,29 +5,39 @@
     <title>Projects | FocusFlow</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-light: #3b82f6;
-            --primary-dark: #1e40af;
-            --secondary: #60a5fa;
-            --bg-color: #121212;
-            --card-bg: #1E1E1E;
-            --text-primary: #E0E0E0;
-            --text-secondary: #9E9E9E;
-            --border: #424242;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --border: #30363d;
+            --accent: #58a6ff;
+            --success: #238636;
+            --warning: #d29922;
+            --danger: #f85149;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            --shadow-hover: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
         }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
-            background-color: #0d1117;
-            color: #c9d1d9;
-            font-family: 'Segoe UI', 'Poppins', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             padding: 0;
-            min-height: 100vh;
+            line-height: 1.6;
         }
+
+        /* Dark Mode Header */
         .navbar {
             background-color: #161b22;
             border-bottom: 1px solid #30363d;
@@ -37,6 +47,7 @@
             top: 0;
             z-index: 100;
         }
+
         .navbar-brand {
             font-weight: 700;
             font-size: 1.5rem;
@@ -44,161 +55,765 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            text-decoration: none;
         }
+
+        .navbar-brand:hover {
+            color: #58a6ff;
+        }
+
         .navbar-brand i {
-            color: var(--secondary);
+            color: var(--accent);
         }
+
         .nav-right {
             display: flex;
             gap: 1.5rem;
             align-items: center;
         }
+
         .user-avatar {
             width: 36px;
             height: 36px;
             border-radius: 50%;
             background-color: #58a6ff;
-            color: #fff;
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
         }
-        .main-content {
-            max-width: 1000px;
-            margin: 2rem auto;
+
+        /* Sidebar Navigation */
+        .sidebar-nav {
             background: #161b22;
             border-radius: 12px;
-            border: 1px solid #30363d;
+            padding: 1.5rem;
             box-shadow: 0 0 20px rgba(0,0,0,0.4);
-            padding: 2rem;
+            height: fit-content;
+            position: sticky;
+            top: 6rem;
+            border: 1px solid #30363d;
         }
-        .projects-header {
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #8b949e;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: #21262d;
+            color: #58a6ff;
+        }
+
+        .nav-item.active {
+            background-color: #21262d;
+            color: #58a6ff;
+            font-weight: 500;
+        }
+
+        .nav-item i {
+            font-size: 1.1rem;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 1.5rem;
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
         }
-        .projects-header h2 {
-            color: #58a6ff;
+        
+        .header h1 {
+            font-size: 1.75rem;
             font-weight: 600;
+            margin: 0;
+            color: var(--text-primary);
         }
-        .add-project-btn {
-            background: #238636;
-            border-color: #2ea043;
-            color: #fff;
-            border-radius: 8px;
-            padding: 0.5rem 1.25rem;
-            font-size: 1rem;
+        
+        .btn {
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .add-project-btn:hover {
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #4c9eff;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
             background: #2ea043;
-            border-color: #3fb950;
         }
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
         }
-        .project-card {
-            background: #0d1117;
-            border: 1px solid #30363d;
+        
+        .btn-outline:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .form-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             border-radius: 8px;
             padding: 1.5rem;
+            margin-bottom: 2rem;
             box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            color: #c9d1d9;
         }
-        .project-title {
+        
+        .form-container h3 {
+            margin: 0 0 1rem 0;
+            font-size: 1.125rem;
             font-weight: 600;
-            color: #58a6ff;
-            font-size: 1.2rem;
+            color: var(--text-primary);
         }
-        .project-desc {
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
             color: var(--text-secondary);
-            font-size: 0.95rem;
         }
-        .project-footer {
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: border-color 0.2s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+        
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .date-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .date-option {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .date-option:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .date-option.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .project-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow);
+        }
+        
+        .project-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .project-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            flex: 1;
+        }
+        
+        .project-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .project-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        
+        .project-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .project-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .status-badge {
+            padding: 0.125rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.625rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-planned {
+            background: rgba(88, 166, 255, 0.1);
+            color: var(--accent);
+        }
+        
+        .status-active {
+            background: rgba(35, 134, 54, 0.1);
+            color: var(--success);
+        }
+        
+        .status-on_hold {
+            background: rgba(210, 153, 34, 0.1);
+            color: var(--warning);
+        }
+        
+        .status-completed {
+            background: rgba(248, 81, 73, 0.1);
+            color: var(--danger);
+        }
+        
+        .project-stats {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .task-count {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+        
+        .empty-state p {
+            margin: 0;
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .project-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .project-actions {
+                justify-content: flex-start;
+            }
+            
+            .date-options {
+                flex-direction: column;
+            }
+        }
+
+        /* Project Tasks Section */
+        .project-tasks {
             margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
         }
-        .project-status {
-            font-size: 0.9rem;
-            color: var(--secondary);
+
+        .tasks-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
         }
-        .project-actions button {
-            background: transparent;
-            border: none;
-            color: #58a6ff;
-            font-size: 1.2rem;
-            margin-left: 0.5rem;
-            cursor: pointer;
+
+        .tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
-        .project-actions button:hover {
-            color: #238636;
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background: var(--bg-secondary);
+            border-radius: 0.375rem;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
         }
-        .btn, .btn-primary, .btn-outline-primary {
-            border-radius: 8px;
+
+        .task-item:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+        }
+
+        .task-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .task-status {
+            display: flex;
+            align-items: center;
+        }
+
+        .no-tasks {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
         }
     </style>
 </head>
 <body>
+
 <nav class="navbar d-flex justify-content-between">
-    <div class="navbar-brand">
+    <a href="/dashboard" class="navbar-brand">
         <i class="bi bi-tree"></i>
         <span>FocusFlow</span>
-    </div>
+    </a>
     <div class="nav-right">
         <div class="user-avatar" th:text="${user.name.substring(0,1)}"></div>
         <a href="/logout" class="btn btn-sm btn-outline-primary">Logout</a>
     </div>
 </nav>
-<div class="main-content">
-    <div class="projects-header">
-        <h2>Projects</h2>
-        <button class="add-project-btn"><i class="bi bi-plus-lg"></i> Add Project</button>
+
+<div class="dashboard-container">
+    <!-- Left Sidebar Navigation -->
+    <div class="sidebar-nav">
+        <a href="/dashboard" class="nav-item">
+            <i class="bi bi-speedometer2"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="/tasks" class="nav-item">
+            <i class="bi bi-list-check"></i>
+            <span>Tasks</span>
+        </a>
+        <a href="/projects" class="nav-item active">
+            <i class="bi bi-journal-bookmark"></i>
+            <span>Projects</span>
+        </a>
+        <a href="/focus-room" class="nav-item">
+            <i class="bi bi-people"></i>
+            <span>Focus Rooms</span>
+        </a>
+        <a href="/notes" class="nav-item">
+            <i class="bi bi-chat-square-text"></i>
+            <span>Notes</span>
+        </a>
+        <a href="/resources" class="nav-item">
+            <i class="bi bi-collection"></i>
+            <span>Resources</span>
+        </a>
+        <a href="/stats" class="nav-item">
+            <i class="bi bi-graph-up"></i>
+            <span>Statistics</span>
+        </a>
+        <a href="/profile" class="nav-item">
+            <i class="bi bi-person"></i>
+            <span>Profile</span>
+        </a>
     </div>
-    <div class="projects-grid">
-        <div class="project-card">
-            <div class="project-title">Spring Boot App</div>
-            <div class="project-desc">A productivity app to manage tasks, notes, and focus sessions.</div>
-            <div class="project-footer">
-                <span class="project-status">Active</span>
-                <div class="project-actions">
-                    <button title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button title="Delete"><i class="bi bi-trash"></i></button>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+        <div class="header">
+            <h1>Projects</h1>
+            <button class="btn btn-primary" onclick="toggleForm()">
+                <i class="bi bi-plus-lg"></i>
+                Add Project
+            </button>
+        </div>
+        
+        <div class="form-container" id="projectForm" style="display: none;">
+            <h3>Add New Project</h3>
+            <form th:action="@{/projects/add}" method="post" th:object="${newProject}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Project Name</label>
+                        <input type="text" th:field="*{name}" class="form-control" placeholder="Enter project name..." required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select th:field="*{status}" class="form-control">
+                            <option value="PLANNED">Planned</option>
+                            <option value="ACTIVE" selected>Active</option>
+                            <option value="ON_HOLD">On Hold</option>
+                            <option value="COMPLETED">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea th:field="*{description}" class="form-control" placeholder="Describe your project..." rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Deadline</label>
+                    <input type="datetime-local" th:field="*{deadline}" class="form-control" id="deadlineInput" />
+                    <div class="date-options">
+                        <div class="date-option" onclick="setQuickDate('next-week')">Next Week</div>
+                        <div class="date-option" onclick="setQuickDate('next-month')">Next Month</div>
+                        <div class="date-option" onclick="setQuickDate('next-quarter')">Next Quarter</div>
+                        <div class="date-option" onclick="setQuickDate('custom')">Custom</div>
+                        <div class="date-option" onclick="clearDeadline()">No Deadline</div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-plus-lg"></i>
+                        Add Project
+                    </button>
+                    <button type="button" class="btn btn-outline" onclick="toggleForm()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="projects-grid">
+            <div th:each="project : ${projects}" class="project-card">
+                <div class="project-header">
+                    <h3 class="project-title" th:text="${project.name}"></h3>
+                    <div class="project-actions">
+                        <a th:href="@{'/projects/' + ${project.id} + '/edit'}" class="btn btn-outline btn-sm" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form th:action="@{'/projects/' + ${project.id} + '/delete'}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-outline btn-sm" title="Delete" onclick="return confirm('Are you sure you want to delete this project?')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div th:if="${project.description != null and project.description != ''}" class="project-description" th:text="${project.description}"></div>
+                
+                <div class="project-meta">
+                    <span th:class="${'status-badge status-' + #strings.toLowerCase(project.status)}">
+                        <form th:action="@{'/projects/' + ${project.id} + '/status'}" method="post" style="display:inline;">
+                            <select name="status" class="form-select form-select-sm d-inline w-auto" style="background:transparent; color:inherit; border:none; font-weight:600; padding:0; min-width:90px;" onchange="this.form.submit()">
+                                <option th:value="PLANNED" th:selected="${project.status == 'PLANNED'}">Planned</option>
+                                <option th:value="ACTIVE" th:selected="${project.status == 'ACTIVE'}">Active</option>
+                                <option th:value="ON_HOLD" th:selected="${project.status == 'ON_HOLD'}">On Hold</option>
+                                <option th:value="COMPLETED" th:selected="${project.status == 'COMPLETED'}">Completed</option>
+                            </select>
+                        </form>
+                    </span>
+                    <span th:if="${project.deadline != null}">
+                        <i class="bi bi-calendar"></i>
+                        <span th:text="${#temporals.format(project.deadline, 'MMM dd, yyyy')}"></span>
+                    </span>
+                    <span th:if="${project.tasks != null}">
+                        <i class="bi bi-list-task"></i>
+                        <span th:text="${project.tasks.size()} + ' tasks'"></span>
+                    </span>
+                </div>
+                
+                <div class="project-stats">
+                    <div class="task-count">
+                        <i class="bi bi-check-circle"></i>
+                        <span th:text="${project.tasks != null ? project.tasks.size() : 0} + ' total'"></span>
+                    </div>
+                    <div class="task-count">
+                        <i class="bi bi-circle"></i>
+                        <span th:text="${project.tasks != null ? project.tasks.size() : 0} + ' pending'"></span>
+                    </div>
+                </div>
+                
+                <!-- Project Tasks Section -->
+                <div th:if="${project.tasks != null and !project.tasks.isEmpty()}" class="project-tasks">
+                    <h6 class="tasks-header">
+                        <i class="bi bi-list-task"></i>
+                        Tasks
+                    </h6>
+                    <div class="tasks-list">
+                        <div th:each="task : ${project.tasks}" class="task-item" th:classappend="${task.completed} ? 'completed' : ''">
+                            <div class="task-info">
+                                <span class="task-title" th:text="${task.title}"></span>
+                                <span th:if="${task.priority != null}" th:class="${'priority-badge priority-' + #strings.toLowerCase(task.priority)}" th:text="${task.priority}"></span>
+                            </div>
+                            <div class="task-status">
+                                <i th:class="${task.completed} ? 'bi bi-check-circle-fill text-success' : 'bi bi-circle text-muted'"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project Notes Section -->
+                <div class="project-tasks" style="margin-top:1rem;">
+                    <h6 class="tasks-header">
+                        <i class="bi bi-journal-text"></i>
+                        Notes
+                    </h6>
+                    <div class="tasks-list" th:if="${project.notes != null and !project.notes.isEmpty()}">
+                        <div th:each="note : ${project.notes}" class="task-item">
+                            <div class="task-info">
+                                <span class="task-title" th:text="${note.title}"></span>
+                                <span class="text-muted" style="font-size:0.75rem;" th:text="${#temporals.format(note.updatedAt, 'MMM dd, yyyy')}"></span>
+                            </div>
+                            <div>
+                                <a th:href="@{'/notes'(projectId=${project.id})}" class="btn btn-outline btn-sm" title="Open Notes">
+                                    <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="no-tasks" th:if="${project.notes == null or project.notes.isEmpty()}">
+                        <i class="bi bi-inbox"></i>
+                        <span>No notes yet</span>
+                    </div>
+                </div>
+
+                <div th:if="${project.tasks == null or project.tasks.isEmpty()}" class="no-tasks">
+                    <i class="bi bi-inbox"></i>
+                    <span>No tasks yet</span>
                 </div>
             </div>
-        </div>
-        <div class="project-card">
-            <div class="project-title">Read Book</div>
-            <div class="project-desc">Finish reading 'Deep Work' and summarize key points.</div>
-            <div class="project-footer">
-                <span class="project-status">In Progress</span>
-                <div class="project-actions">
-                    <button title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button title="Delete"><i class="bi bi-trash"></i></button>
-                </div>
-            </div>
-        </div>
-        <div class="project-card">
-            <div class="project-title">Focus Room Launch</div>
-            <div class="project-desc">Set up and launch the first public focus room for users.</div>
-            <div class="project-footer">
-                <span class="project-status">Planned</span>
-                <div class="project-actions">
-                    <button title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button title="Delete"><i class="bi bi-trash"></i></button>
-                </div>
+            
+            <div th:if="${#lists.isEmpty(projects)}" class="empty-state">
+                <i class="bi bi-folder"></i>
+                <h3>No projects yet</h3>
+                <p>Create your first project to get started</p>
             </div>
         </div>
     </div>
 </div>
+</div>
+    
+    <script>
+        function toggleForm() {
+            const form = document.getElementById('projectForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+            
+            if (form.style.display === 'block') {
+                setTimeout(() => {
+                    document.querySelector('#projectForm input[name="name"]').focus();
+                }, 100);
+            }
+        }
+        
+        function setQuickDate(type) {
+            const input = document.getElementById('deadlineInput');
+            const now = new Date();
+            let targetDate = new Date();
+            
+            // Remove active class from all options
+            document.querySelectorAll('.date-option').forEach(opt => opt.classList.remove('active'));
+            
+            switch(type) {
+                case 'next-week':
+                    targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7, 18, 0);
+                    document.querySelector('.date-option[onclick*="next-week"]').classList.add('active');
+                    break;
+                case 'next-month':
+                    targetDate = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate(), 18, 0);
+                    document.querySelector('.date-option[onclick*="next-month"]').classList.add('active');
+                    break;
+                case 'next-quarter':
+                    targetDate = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate(), 18, 0);
+                    document.querySelector('.date-option[onclick*="next-quarter"]').classList.add('active');
+                    break;
+                case 'custom':
+                    input.focus();
+                    return;
+            }
+            
+            const formattedDate = targetDate.toISOString().slice(0, 16);
+            input.value = formattedDate;
+        }
+        
+        function clearDeadline() {
+            document.getElementById('deadlineInput').value = '';
+            // Remove active class from all options
+            document.querySelectorAll('.date-option').forEach(opt => opt.classList.remove('active'));
+            document.querySelector('.date-option[onclick*="clearDeadline"]').classList.add('active');
+        }
+        
+        // Add event listener to custom date input
+        document.addEventListener('DOMContentLoaded', function() {
+            const deadlineInput = document.getElementById('deadlineInput');
+            if (deadlineInput) {
+                deadlineInput.addEventListener('change', function() {
+                    // Remove active class from all options when user manually selects a date
+                    document.querySelectorAll('.date-option').forEach(opt => opt.classList.remove('active'));
+                    document.querySelector('.date-option[onclick*="custom"]').classList.add('active');
+                });
+            }
+        });
+    </script>
 </body>
 </html> 

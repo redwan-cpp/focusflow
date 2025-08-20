@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Task | FocusFlow</title>
+    <title>Edit Project | FocusFlow</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -158,13 +158,6 @@
             color: var(--text-primary);
         }
         
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
         .form-group {
             margin-bottom: 1rem;
         }
@@ -198,9 +191,39 @@
             color: var(--text-muted);
         }
         
+        .date-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .date-option {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .date-option:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .date-option.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
         @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
+            .date-options {
+                flex-direction: column;
             }
         }
     </style>
@@ -220,62 +243,110 @@
 
 <div class="container">
         <div class="header">
-            <h1>Edit Task</h1>
-            <a href="/tasks" class="btn btn-outline">
+            <h1>Edit Project</h1>
+            <a href="/projects" class="btn btn-outline">
                 <i class="bi bi-arrow-left"></i>
-                Back to Tasks
+                Back to Projects
             </a>
         </div>
         
         <div class="form-container">
-            <h3>Update Task Details</h3>
-            <form th:action="@{'/tasks/' + ${editTask.id} + '/edit'}" method="post" th:object="${editTask}">
+            <h3>Update Project Details</h3>
+            <form th:action="@{'/projects/' + ${editProject.id} + '/edit'}" method="post" th:object="${editProject}">
                 <div class="form-group">
-                    <label class="form-label">Task Title</label>
-                    <input type="text" th:field="*{title}" class="form-control" placeholder="Enter task title..." required />
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Priority</label>
-                        <select th:field="*{priority}" class="form-control">
-                            <option value="LOW">Low</option>
-                            <option value="MEDIUM">Medium</option>
-                            <option value="HIGH">High</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Project (Optional)</label>
-                        <select th:field="*{project}" class="form-control">
-                            <option value="">No Project</option>
-                            <option th:each="project : ${projects}" 
-                                    th:value="${project.id}" 
-                                    th:text="${project.name}"></option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Due Date</label>
-                    <input type="datetime-local" th:field="*{dueDate}" class="form-control" />
+                    <label class="form-label">Project Name</label>
+                    <input type="text" th:field="*{name}" class="form-control" placeholder="Enter project name..." required />
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">Description</label>
-                    <textarea th:field="*{description}" class="form-control" placeholder="Add a description..." rows="3"></textarea>
+                    <textarea th:field="*{description}" class="form-control" placeholder="Describe your project..." rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Deadline</label>
+                    <input type="datetime-local" th:field="*{deadline}" class="form-control" id="deadlineInput" />
+                    <div class="date-options">
+                        <div class="date-option" onclick="setQuickDate('next-week')">Next Week</div>
+                        <div class="date-option" onclick="setQuickDate('next-month')">Next Month</div>
+                        <div class="date-option" onclick="setQuickDate('next-quarter')">Next Quarter</div>
+                        <div class="date-option" onclick="setQuickDate('custom')">Custom</div>
+                        <div class="date-option" onclick="clearDeadline()">No Deadline</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select th:field="*{status}" class="form-control">
+                        <option value="PLANNED">Planned</option>
+                        <option value="ACTIVE">Active</option>
+                        <option value="ON_HOLD">On Hold</option>
+                        <option value="COMPLETED">Completed</option>
+                    </select>
                 </div>
                 
                 <div style="display: flex; gap: 0.5rem;">
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-check-lg"></i>
-                        Update Task
+                        Update Project
                     </button>
-                    <a href="/tasks" class="btn btn-outline">
+                    <a href="/projects" class="btn btn-outline">
                         Cancel
                     </a>
                 </div>
             </form>
         </div>
     </div>
+    
+    <script>
+        function setQuickDate(type) {
+            const input = document.getElementById('deadlineInput');
+            const now = new Date();
+            let targetDate = new Date();
+            
+            // Remove active class from all options
+            document.querySelectorAll('.date-option').forEach(opt => opt.classList.remove('active'));
+            
+            switch(type) {
+                case 'next-week':
+                    targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7, 18, 0);
+                    document.querySelector('.date-option[onclick*="next-week"]').classList.add('active');
+                    break;
+                case 'next-month':
+                    targetDate = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate(), 18, 0);
+                    document.querySelector('.date-option[onclick*="next-month"]').classList.add('active');
+                    break;
+                case 'next-quarter':
+                    targetDate = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate(), 18, 0);
+                    document.querySelector('.date-option[onclick*="next-quarter"]').classList.add('active');
+                    break;
+                case 'custom':
+                    input.focus();
+                    return;
+            }
+            
+            const formattedDate = targetDate.toISOString().slice(0, 16);
+            input.value = formattedDate;
+        }
+        
+        function clearDeadline() {
+            document.getElementById('deadlineInput').value = '';
+            // Remove active class from all options
+            document.querySelectorAll('.date-option').forEach(opt => opt.classList.remove('active'));
+            document.querySelector('.date-option[onclick*="clearDeadline"]').classList.add('active');
+        }
+        
+        // Add event listener to custom date input
+        document.addEventListener('DOMContentLoaded', function() {
+            const deadlineInput = document.getElementById('deadlineInput');
+            if (deadlineInput) {
+                deadlineInput.addEventListener('change', function() {
+                    // Remove active class from all options when user manually selects a date
+                    document.querySelectorAll('.date-option').forEach(opt => opt.classList.remove('active'));
+                    document.querySelector('.date-option[onclick*="custom"]').classList.add('active');
+                });
+            }
+        });
+    </script>
 </body>
-</html>
+</html> 

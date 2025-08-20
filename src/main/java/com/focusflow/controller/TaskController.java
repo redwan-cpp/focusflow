@@ -1,7 +1,9 @@
 package com.focusflow.controller;
 
+import com.focusflow.model.Project;
 import com.focusflow.model.Task;
 import com.focusflow.model.User;
+import com.focusflow.repository.ProjectRepository;
 import com.focusflow.repository.TaskRepository;
 import com.focusflow.repository.UserRepository;
 import org.springframework.stereotype.Controller;
@@ -9,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Controller
@@ -16,10 +19,12 @@ import java.util.List;
 public class TaskController {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
 
-    public TaskController(TaskRepository taskRepository, UserRepository userRepository) {
+    public TaskController(TaskRepository taskRepository, UserRepository userRepository, ProjectRepository projectRepository) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.projectRepository = projectRepository;
     }
 
     // List all tasks for the logged-in user
@@ -30,8 +35,10 @@ public class TaskController {
             return "redirect:/login";
         }
         List<Task> tasks = taskRepository.findAllByUser(user);
+        List<Project> projects = projectRepository.findAllByUser(user);
         model.addAttribute("user", user);
         model.addAttribute("tasks", tasks);
+        model.addAttribute("projects", projects);
         model.addAttribute("newTask", new Task());
         return "tasks";
     }
@@ -39,13 +46,32 @@ public class TaskController {
     // Create a new task
     @PostMapping("/add")
     public String addTask(@ModelAttribute("newTask") Task task, Principal principal) {
-        User user = userRepository.findByEmail(principal.getName()).orElse(null);
-        task.setUser(user);
-        if (task.getDueDate() == null) {
-            task.setDueDate(LocalDateTime.now().plusDays(1));
+        try {
+            User user = userRepository.findByEmail(principal.getName()).orElse(null);
+            if (user == null) {
+                return "redirect:/login";
+            }
+            
+            task.setUser(user);
+            task.setCompleted(false);
+            
+            // Set default priority if not provided
+            if (task.getPriority() == null || task.getPriority().isEmpty()) {
+                task.setPriority("MEDIUM");
+            }
+            
+            // Set default due date if not provided
+            if (task.getDueDate() == null) {
+                task.setDueDate(LocalDateTime.now().plusDays(1));
+            }
+            
+            taskRepository.save(task);
+            return "redirect:/tasks";
+        } catch (Exception e) {
+            // Log the error for debugging
+            System.err.println("Error adding task: " + e.getMessage());
+            return "redirect:/tasks?error=Failed+to+add+task";
         }
-        taskRepository.save(task);
-        return "redirect:/tasks";
     }
 
     // Mark as complete/incomplete
@@ -77,8 +103,10 @@ public class TaskController {
         if (task == null || !task.getUser().getEmail().equals(principal.getName())) {
             return "redirect:/tasks";
         }
+        List<Project> projects = projectRepository.findAllByUser(user);
         model.addAttribute("user", user);
         model.addAttribute("editTask", task);
+        model.addAttribute("projects", projects);
         return "edit-task";
     }
 
@@ -91,6 +119,7 @@ public class TaskController {
             task.setDescription(updatedTask.getDescription());
             task.setDueDate(updatedTask.getDueDate());
             task.setPriority(updatedTask.getPriority());
+            task.setProject(updatedTask.getProject());
             taskRepository.save(task);
         }
         return "redirect:/tasks";
