@@ -48,7 +48,12 @@ public class ResourceController {
         List<Resource> resources = resourceRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
         List<Project> projects = projectRepository.findAllByUser(user);
         
-        model.addAttribute("resources", resources);
+        // Filter out resources without projects for display
+        List<Resource> validResources = resources.stream()
+            .filter(resource -> resource.getProject() != null)
+            .toList();
+        
+        model.addAttribute("resources", validResources);
         model.addAttribute("projects", projects);
         model.addAttribute("user", user);
         return "resources";
@@ -66,7 +71,12 @@ public class ResourceController {
         Optional<Project> project = projectRepository.findById(projectId);
         List<Project> projects = projectRepository.findAllByUser(user);
         
-        model.addAttribute("resources", resources);
+        // Filter out resources without projects for display
+        List<Resource> validResources = resources.stream()
+            .filter(resource -> resource.getProject() != null)
+            .toList();
+        
+        model.addAttribute("resources", validResources);
         model.addAttribute("currentProject", project.orElse(null));
         model.addAttribute("projects", projects);
         model.addAttribute("user", user);

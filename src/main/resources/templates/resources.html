@@ -330,7 +330,7 @@
                 <div class="resource-title" th:text="${resource.title}"></div>
             </div>
             
-            <div class="resource-project" th:text="${resource.project.name}"></div>
+            <div class="resource-project" th:if="${resource.project != null}" th:text="${resource.project.name}"></div>
             
             <div class="resource-desc" th:text="${resource.description}"></div>
             
@@ -349,7 +349,7 @@
                             th:data-id="${resource.id}"
                             th:data-title="${resource.title}"
                             th:data-description="${resource.description}"
-                            th:data-project-id="${resource.project.id}"
+                            th:data-project-id="${resource.project != null ? resource.project.id : ''}"
                             th:data-url="${resource.url}"
                             th:data-file-type="${resource.fileType}">
                         <i class="bi bi-pencil"></i>
