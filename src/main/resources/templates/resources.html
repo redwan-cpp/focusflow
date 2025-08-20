@@ -65,7 +65,7 @@
             font-weight: 600;
         }
         .main-content {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 2rem auto;
             background: #161b22;
             border-radius: 12px;
@@ -92,14 +92,30 @@
             font-size: 1rem;
             cursor: pointer;
             transition: background 0.2s;
+            border: none;
         }
         .add-resource-btn:hover {
             background: #2ea043;
             border-color: #3fb950;
         }
+        .project-filter {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #0d1117;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+        }
+        .project-filter select {
+            background: #161b22;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 0.5rem;
+            border-radius: 6px;
+            width: 200px;
+        }
         .resources-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 1.5rem;
         }
         .resource-card {
@@ -112,40 +128,148 @@
             flex-direction: column;
             gap: 0.5rem;
             color: #c9d1d9;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .resource-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        .resource-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .resource-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: rgba(88, 166, 255, 0.1);
         }
         .resource-title {
             font-weight: 600;
             color: #58a6ff;
             font-size: 1.1rem;
+            flex: 1;
+        }
+        .resource-project {
+            font-size: 0.8rem;
+            color: #8b949e;
+            background: #21262d;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
         }
         .resource-link {
             color: #58a6ff;
             text-decoration: underline;
             font-size: 0.95rem;
+            word-break: break-all;
         }
         .resource-desc {
             color: var(--text-secondary);
             font-size: 0.95rem;
+            margin: 0.5rem 0;
+        }
+        .resource-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #8b949e;
+            margin-top: 0.5rem;
         }
         .resource-footer {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
             margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #30363d;
         }
         .resource-actions button {
             background: transparent;
             border: none;
             color: #58a6ff;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-left: 0.5rem;
             cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: background 0.2s;
         }
         .resource-actions button:hover {
-            color: #238636;
+            background: rgba(88, 166, 255, 0.1);
         }
-        .btn, .btn-primary, .btn-outline-primary {
+        .modal-content {
+            background: #161b22;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+        }
+        .modal-header {
+            border-bottom: 1px solid #30363d;
+        }
+        .modal-footer {
+            border-top: 1px solid #30363d;
+        }
+        .form-control, .form-select {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+        }
+        .form-control:focus, .form-select:focus {
+            background: #0d1117;
+            border-color: #58a6ff;
+            color: #c9d1d9;
+            box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+        }
+        .form-label {
+            color: #c9d1d9;
+            font-weight: 500;
+        }
+        .btn-close {
+            filter: invert(1);
+        }
+        .alert {
             border-radius: 8px;
+            border: none;
+        }
+        .alert-success {
+            background: rgba(35, 134, 54, 0.1);
+            color: #3fb950;
+        }
+        .alert-danger {
+            background: rgba(248, 81, 73, 0.1);
+            color: #f85149;
+        }
+        .file-upload-area {
+            border: 2px dashed #30363d;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            background: #0d1117;
+            transition: border-color 0.2s;
+        }
+        .file-upload-area:hover {
+            border-color: #58a6ff;
+        }
+        .file-upload-area.dragover {
+            border-color: #58a6ff;
+            background: rgba(88, 166, 255, 0.05);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #8b949e;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #30363d;
         }
     </style>
 </head>
@@ -160,35 +284,325 @@
         <a href="/logout" class="btn btn-sm btn-outline-primary">Logout</a>
     </div>
 </nav>
+
 <div class="main-content">
     <div class="resources-header">
-        <h2>Resources</h2>
-        <button class="add-resource-btn"><i class="bi bi-plus-lg"></i> Add Resource</button>
+        <h2>
+            <i class="bi bi-folder2-open"></i>
+            Resources
+            <span th:if="${currentProject}" class="text-muted">- <span th:text="${currentProject.name}"></span></span>
+        </h2>
+        <button class="add-resource-btn" data-bs-toggle="modal" data-bs-target="#addResourceModal">
+            <i class="bi bi-plus-lg"></i> Add Resource
+        </button>
     </div>
-    <div class="resources-grid">
-        <div class="resource-card">
-            <div class="resource-title">Spring Boot Docs</div>
-            <a href="https://spring.io/projects/spring-boot" class="resource-link" target="_blank">spring.io/projects/spring-boot</a>
-            <div class="resource-desc">Official documentation for Spring Boot framework.</div>
+
+    <!-- Project Filter -->
+    <div class="project-filter">
+        <label for="projectFilter" class="form-label">Filter by Project:</label>
+        <select id="projectFilter" class="form-select" onchange="filterByProject(this.value)">
+            <option value="">All Projects</option>
+            <option th:each="project : ${projects}" 
+                    th:value="${project.id}" 
+                    th:text="${project.name}"
+                    th:selected="${currentProject != null && currentProject.id == project.id}">
+            </option>
+        </select>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Resources Grid -->
+    <div class="resources-grid" th:if="${!resources.isEmpty()}">
+        <div class="resource-card" th:each="resource : ${resources}">
+            <div class="resource-header">
+                <div class="resource-icon" th:style="'color: ' + ${resource.fileTypeColor}">
+                    <i th:class="${resource.fileIcon}"></i>
+                </div>
+                <div class="resource-title" th:text="${resource.title}"></div>
+            </div>
+            
+            <div class="resource-project" th:text="${resource.project.name}"></div>
+            
+            <div class="resource-desc" th:text="${resource.description}"></div>
+            
+            <div th:if="${resource.url != null}">
+                <a th:href="${resource.url}" class="resource-link" target="_blank" th:text="${resource.url}"></a>
+            </div>
+            
+            <div class="resource-meta">
+                <span th:if="${resource.fileSize != null}" th:text="${resource.fileSize}"></span>
+                <span th:text="${#temporals.format(resource.createdAt, 'MMM dd, yyyy')}"></span>
+            </div>
+            
             <div class="resource-footer">
                 <div class="resource-actions">
-                    <button title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button title="Delete"><i class="bi bi-trash"></i></button>
+                    <button title="Edit" onclick="editResource(this)" 
+                            th:data-id="${resource.id}"
+                            th:data-title="${resource.title}"
+                            th:data-description="${resource.description}"
+                            th:data-project-id="${resource.project.id}"
+                            th:data-url="${resource.url}"
+                            th:data-file-type="${resource.fileType}">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button title="Delete" onclick="deleteResource(this)" th:data-id="${resource.id}">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </div>
             </div>
         </div>
-        <div class="resource-card">
-            <div class="resource-title">Focus Timer App</div>
-            <a href="https://pomofocus.io/" class="resource-link" target="_blank">pomofocus.io</a>
-            <div class="resource-desc">A simple Pomodoro timer for productivity.</div>
-            <div class="resource-footer">
-                <div class="resource-actions">
-                    <button title="Edit"><i class="bi bi-pencil"></i></button>
-                    <button title="Delete"><i class="bi bi-trash"></i></button>
-                </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" th:if="${resources.isEmpty()}">
+        <i class="bi bi-folder2"></i>
+        <h4>No resources found</h4>
+        <p>Start by adding your first resource to keep your project files organized.</p>
+        <button class="add-resource-btn" data-bs-toggle="modal" data-bs-target="#addResourceModal">
+            <i class="bi bi-plus-lg"></i> Add Your First Resource
+        </button>
+    </div>
+</div>
+
+<!-- Add Resource Modal -->
+<div class="modal fade" id="addResourceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Resource</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+            <form th:action="@{/resources/add}" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Title *</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="projectId" class="form-label">Project *</label>
+                                <select class="form-select" id="projectId" name="projectId" required>
+                                    <option value="">Select Project</option>
+                                    <option th:each="project : ${projects}" 
+                                            th:value="${project.id}" 
+                                            th:text="${project.name}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Resource Type *</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="resourceType" id="typeLink" value="LINK" checked>
+                            <label class="form-check-label" for="typeLink">
+                                <i class="bi bi-link-45deg"></i> Website Link
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="resourceType" id="typeFile" value="FILE">
+                            <label class="form-check-label" for="typeFile">
+                                <i class="bi bi-file-earmark"></i> File Upload (PDF, DOC, Images)
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="linkSection" class="mb-3">
+                        <label for="url" class="form-label">URL</label>
+                        <input type="url" class="form-control" id="url" name="url" placeholder="https://example.com">
+                    </div>
+                    
+                    <div id="fileSection" class="mb-3" style="display: none;">
+                        <label class="form-label">File Upload</label>
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <i class="bi bi-cloud-upload"></i>
+                            <p>Drag and drop files here or click to browse</p>
+                            <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" style="display: none;">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('file').click()">
+                                Choose File
+                            </button>
+                        </div>
+                        <div id="fileInfo" class="mt-2" style="display: none;">
+                            <small class="text-muted">Selected: <span id="fileName"></span></small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Resource</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+<!-- Edit Resource Modal -->
+<div class="modal fade" id="editResourceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Resource</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editResourceForm" method="post">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editTitle" class="form-label">Title *</label>
+                                <input type="text" class="form-control" id="editTitle" name="title" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editProjectId" class="form-label">Project *</label>
+                                <select class="form-select" id="editProjectId" name="projectId" required>
+                                    <option value="">Select Project</option>
+                                    <option th:each="project : ${projects}" 
+                                            th:value="${project.id}" 
+                                            th:text="${project.name}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editDescription" name="description" rows="3"></textarea>
+                    </div>
+                    
+                    <div id="editLinkSection" class="mb-3" style="display: none;">
+                        <label for="editUrl" class="form-label">URL</label>
+                        <input type="url" class="form-control" id="editUrl" name="url" placeholder="https://example.com">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Resource</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Resource type toggle
+    document.querySelectorAll('input[name="resourceType"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const linkSection = document.getElementById('linkSection');
+            const fileSection = document.getElementById('fileSection');
+            
+            if (this.value === 'LINK') {
+                linkSection.style.display = 'block';
+                fileSection.style.display = 'none';
+            } else {
+                linkSection.style.display = 'none';
+                fileSection.style.display = 'block';
+            }
+        });
+    });
+
+    // File upload handling
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const fileInput = document.getElementById('file');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+
+    fileUploadArea.addEventListener('click', () => fileInput.click());
+    
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            fileName.textContent = this.files[0].name;
+            fileInfo.style.display = 'block';
+        }
+    });
+
+    // Drag and drop
+    fileUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fileUploadArea.classList.add('dragover');
+    });
+
+    fileUploadArea.addEventListener('dragleave', () => {
+        fileUploadArea.classList.remove('dragover');
+    });
+
+    fileUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileUploadArea.classList.remove('dragover');
+        fileInput.files = e.dataTransfer.files;
+        if (fileInput.files.length > 0) {
+            fileName.textContent = fileInput.files[0].name;
+            fileInfo.style.display = 'block';
+        }
+    });
+
+    // Edit resource
+    function editResource(button) {
+        const id = button.getAttribute('data-id');
+        const title = button.getAttribute('data-title');
+        const description = button.getAttribute('data-description');
+        const projectId = button.getAttribute('data-project-id');
+        const url = button.getAttribute('data-url');
+        const fileType = button.getAttribute('data-file-type');
+
+        document.getElementById('editTitle').value = title;
+        document.getElementById('editDescription').value = description;
+        document.getElementById('editProjectId').value = projectId;
+        document.getElementById('editUrl').value = url || '';
+        
+        const editLinkSection = document.getElementById('editLinkSection');
+        if (fileType === 'LINK') {
+            editLinkSection.style.display = 'block';
+        } else {
+            editLinkSection.style.display = 'none';
+        }
+
+        document.getElementById('editResourceForm').action = `/resources/edit/${id}`;
+        
+        new bootstrap.Modal(document.getElementById('editResourceModal')).show();
+    }
+
+    // Delete resource
+    function deleteResource(button) {
+        if (confirm('Are you sure you want to delete this resource?')) {
+            const id = button.getAttribute('data-id');
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/resources/delete/${id}`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    // Filter by project
+    function filterByProject(projectId) {
+        if (projectId) {
+            window.location.href = `/resources/project/${projectId}`;
+        } else {
+            window.location.href = '/resources';
+        }
+    }
+</script>
 </body>
 </html> 

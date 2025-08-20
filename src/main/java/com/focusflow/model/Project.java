@@ -24,6 +24,9 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Note> notes = new ArrayList<>();
 
+    @Transient
+    private Integer resourceCount = 0;
+
     // Constructors
     public Project() {}
 
@@ -98,6 +101,14 @@ public class Project {
 
     public void setNotes(List<Note> notes) {
         this.notes = notes;
+    }
+
+    public Integer getResourceCount() {
+        return resourceCount;
+    }
+
+    public void setResourceCount(Integer resourceCount) {
+        this.resourceCount = resourceCount;
     }
 
     // Helper methods

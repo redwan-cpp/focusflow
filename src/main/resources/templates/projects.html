@@ -681,6 +681,10 @@
                         <i class="bi bi-list-task"></i>
                         <span th:text="${project.tasks.size()} + ' tasks'"></span>
                     </span>
+                    <span th:if="${project.resourceCount != null and project.resourceCount > 0}">
+                        <i class="bi bi-collection"></i>
+                        <span th:text="${project.resourceCount} + ' resources'"></span>
+                    </span>
                 </div>
                 
                 <div class="project-stats">
@@ -735,6 +739,37 @@
                     <div class="no-tasks" th:if="${project.notes == null or project.notes.isEmpty()}">
                         <i class="bi bi-inbox"></i>
                         <span>No notes yet</span>
+                    </div>
+                </div>
+
+                <!-- Project Resources Section -->
+                <div class="project-tasks" style="margin-top:1rem;">
+                    <h6 class="tasks-header">
+                        <i class="bi bi-collection"></i>
+                        Resources
+                        <a th:href="@{'/resources/project/' + ${project.id}}" class="btn btn-outline btn-sm ms-auto" title="View All Resources">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                    </h6>
+                    <div class="tasks-list" th:if="${project.resourceCount != null and project.resourceCount > 0}">
+                        <div class="task-item">
+                            <div class="task-info">
+                                <span class="task-title" th:text="${project.resourceCount} + ' resources available'"></span>
+                                <span class="text-muted" style="font-size:0.75rem;">PDFs, docs, links, images</span>
+                            </div>
+                            <div>
+                                <a th:href="@{'/resources/project/' + ${project.id}}" class="btn btn-outline btn-sm" title="View Resources">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="no-tasks" th:if="${project.resourceCount == null or project.resourceCount == 0}">
+                        <i class="bi bi-inbox"></i>
+                        <span>No resources yet</span>
+                        <a th:href="@{'/resources/project/' + ${project.id}}" class="btn btn-outline btn-sm ms-2" title="Add Resources">
+                            <i class="bi bi-plus"></i>
+                        </a>
                     </div>
                 </div>
 

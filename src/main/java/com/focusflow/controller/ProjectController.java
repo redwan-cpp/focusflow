@@ -3,6 +3,7 @@ package com.focusflow.controller;
 import com.focusflow.model.Project;
 import com.focusflow.model.User;
 import com.focusflow.repository.ProjectRepository;
+import com.focusflow.repository.ResourceRepository;
 import com.focusflow.repository.UserRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,10 +18,12 @@ import java.util.List;
 public class ProjectController {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final ResourceRepository resourceRepository;
 
-    public ProjectController(ProjectRepository projectRepository, UserRepository userRepository) {
+    public ProjectController(ProjectRepository projectRepository, UserRepository userRepository, ResourceRepository resourceRepository) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.resourceRepository = resourceRepository;
     }
 
     // List all projects for the logged-in user
@@ -31,6 +34,13 @@ public class ProjectController {
             return "redirect:/login";
         }
         List<Project> projects = projectRepository.findAllByUser(user);
+        
+        // Add resource counts for each project
+        for (Project project : projects) {
+            Long resourceCount = resourceRepository.countByProjectId(project.getId());
+            project.setResourceCount(resourceCount != null ? resourceCount.intValue() : 0);
+        }
+        
         model.addAttribute("user", user);
         model.addAttribute("projects", projects);
         model.addAttribute("newProject", new Project());
