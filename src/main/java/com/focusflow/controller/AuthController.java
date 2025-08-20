@@ -55,12 +55,7 @@ public class AuthController {
         return "dashboard";
     }
 
-    @GetMapping("/resources")
-    public String resourcesPage(Model model, Principal principal) {
-        User user = repo.findByEmail(principal.getName()).orElse(null);
-        model.addAttribute("user", user);
-        return "resources";
-    }
+
 
     @GetMapping("/stats")
     public String statsPage(Model model, Principal principal) {
