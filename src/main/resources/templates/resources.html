@@ -168,12 +168,18 @@
             color: #58a6ff;
             text-decoration: underline;
             font-size: 0.95rem;
-            word-break: break-all;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            display: inline-block;
+            max-width: 100%;
         }
         .resource-desc {
             color: var(--text-secondary);
             font-size: 0.95rem;
             margin: 0.5rem 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
         .resource-meta {
             display: flex;
@@ -335,7 +341,7 @@
             <div class="resource-desc" th:text="${resource.description}"></div>
             
             <div th:if="${resource.url != null}">
-                <a th:href="${resource.url}" class="resource-link" target="_blank" th:text="${resource.url}"></a>
+                <a th:href="${resource.url}" class="resource-link" target="_blank" th:text="${resource.displayUrl}"></a>
             </div>
             
             <div class="resource-meta">

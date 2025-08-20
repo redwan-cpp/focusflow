@@ -113,7 +113,7 @@ public class ResourceController {
         resource.setProject(project.get());
 
         if ("LINK".equals(resourceType)) {
-            resource.setUrl(url);
+            resource.setUrl(normalizeUrl(url));
             resource.setFileType("LINK");
         } else if (file != null && !file.isEmpty()) {
             try {
@@ -187,12 +187,23 @@ public class ResourceController {
         resource.setProject(project.get());
         
         if ("LINK".equals(resource.getFileType())) {
-            resource.setUrl(url);
+            resource.setUrl(normalizeUrl(url));
         }
 
         resourceRepository.save(resource);
         redirectAttributes.addFlashAttribute("success", "Resource updated successfully");
         return "redirect:/resources";
+    }
+
+    private String normalizeUrl(String input) {
+        if (input == null || input.isBlank()) {
+            return input;
+        }
+        String trimmed = input.trim();
+        if (!(trimmed.startsWith("http://") || trimmed.startsWith("https://"))) {
+            return "https://" + trimmed;
+        }
+        return trimmed;
     }
 
     @PostMapping("/delete/{id}")

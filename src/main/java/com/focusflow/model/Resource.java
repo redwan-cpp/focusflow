@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
+import java.net.URI;
 
 @Entity
 @Data
@@ -82,6 +83,39 @@ public class Resource {
                 return "#fd7e14";
             default:
                 return "#6c757d";
+        }
+    }
+
+    // Returns a cleaned, human-friendly URL text for display
+    public String getDisplayUrl() {
+        if (url == null || url.isBlank()) {
+            return "";
+        }
+        try {
+            URI parsed = new URI(url);
+            String host = parsed.getHost();
+            if (host == null) {
+                // Handle URLs missing scheme
+                parsed = new URI("https://" + url);
+                host = parsed.getHost();
+            }
+            if (host == null) {
+                return url;
+            }
+            if (host.startsWith("www.")) {
+                host = host.substring(4);
+            }
+            String path = parsed.getPath();
+            String display = host;
+            if (path != null && !path.isEmpty() && !"/".equals(path)) {
+                display += path;
+            }
+            if (display.length() > 60) {
+                display = display.substring(0, 57) + "...";
+            }
+            return display;
+        } catch (Exception e) {
+            return url;
         }
     }
 }

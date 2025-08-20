@@ -661,6 +661,9 @@
                 </div>
                 
                 <div th:if="${project.description != null and project.description != ''}" class="project-description" th:text="${project.description}"></div>
+                <style>
+                    .project-description { white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; }
+                </style>
                 
                 <div class="project-meta">
                     <span th:class="${'status-badge status-' + #strings.toLowerCase(project.status)}">
