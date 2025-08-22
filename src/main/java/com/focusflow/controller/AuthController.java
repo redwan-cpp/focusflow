@@ -48,21 +48,11 @@ public class AuthController {
         return "login";
     }
 
-    @GetMapping("/dashboard")
-    public String dashboardPage(Model model, Principal principal) {
-        User user = repo.findByEmail(principal.getName()).orElse(null);
-        model.addAttribute("user", user);
-        return "dashboard";
-    }
+    // Dashboard is handled by DashboardController
 
 
 
-    @GetMapping("/stats")
-    public String statsPage(Model model, Principal principal) {
-        User user = repo.findByEmail(principal.getName()).orElse(null);
-        model.addAttribute("user", user);
-        return "stats";
-    }
+    // Stats page is handled by StatsController
 
     @GetMapping("/profile")
     public String profilePage(Model model, Principal principal) {

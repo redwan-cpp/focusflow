@@ -1,9 +1,11 @@
 package com.focusflow.controller;
 
 import com.focusflow.model.Project;
+import com.focusflow.model.Statistic;
 import com.focusflow.model.Task;
 import com.focusflow.model.User;
 import com.focusflow.repository.ProjectRepository;
+import com.focusflow.repository.StatisticRepository;
 import com.focusflow.repository.TaskRepository;
 import com.focusflow.repository.UserRepository;
 import org.springframework.stereotype.Controller;
@@ -11,7 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -20,11 +22,13 @@ public class TaskController {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
+    private final StatisticRepository statisticRepository;
 
-    public TaskController(TaskRepository taskRepository, UserRepository userRepository, ProjectRepository projectRepository) {
+    public TaskController(TaskRepository taskRepository, UserRepository userRepository, ProjectRepository projectRepository, StatisticRepository statisticRepository) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
+        this.statisticRepository = statisticRepository;
     }
 
     // List all tasks for the logged-in user
@@ -34,10 +38,12 @@ public class TaskController {
         if (user == null) {
             return "redirect:/login";
         }
-        List<Task> tasks = taskRepository.findAllByUser(user);
+        List<Task> unfinished = taskRepository.findByUserAndCompletedFalseOrderByCreatedAtDesc(user);
+        List<Task> finished = taskRepository.findByUserAndCompletedTrueOrderByCompletedAtDesc(user);
         List<Project> projects = projectRepository.findAllByUser(user);
         model.addAttribute("user", user);
-        model.addAttribute("tasks", tasks);
+        model.addAttribute("unfinished", unfinished);
+        model.addAttribute("finished", finished);
         model.addAttribute("projects", projects);
         model.addAttribute("newTask", new Task());
         return "tasks";
@@ -79,8 +85,30 @@ public class TaskController {
     public String toggleComplete(@PathVariable Long id, Principal principal) {
         Task task = taskRepository.findById(id).orElse(null);
         if (task != null && task.getUser().getEmail().equals(principal.getName())) {
-            task.setCompleted(!task.isCompleted());
+            boolean wasCompleted = task.isCompleted();
+            task.setCompleted(!wasCompleted);
+            if (task.isCompleted()) {
+                task.setCompletedAt(LocalDateTime.now());
+            } else {
+                task.setCompletedAt(null);
+            }
             taskRepository.save(task);
+
+            // Update today's statistic for tasksCompleted
+            User user = task.getUser();
+            LocalDate today = LocalDate.now();
+            Statistic stat = statisticRepository.findByUserAndDate(user, today).orElseGet(() -> {
+                Statistic s = new Statistic();
+                s.setUser(user);
+                s.setDate(today);
+                s.setFocusTimeMinutes(0);
+                s.setTasksCompleted(0);
+                s.setPomodoros(0);
+                return s;
+            });
+            int delta = task.isCompleted() ? 1 : -1;
+            stat.setTasksCompleted(Math.max(0, stat.getTasksCompleted() + delta));
+            statisticRepository.save(stat);
         }
         return "redirect:/tasks";
     }

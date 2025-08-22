@@ -364,32 +364,35 @@
     .timer-controls {
       display: flex;
       justify-content: center;
-      gap: 1rem;
+      gap: 0.75rem;
+      flex-wrap: wrap;
     }
 
     .timer-btn {
       background: var(--primary);
       color: white;
       border: none;
-      border-radius: 8px;
-      padding: 0.5rem 1.25rem;
-      font-size: 0.9rem;
+      border-radius: 10px;
+      padding: 0.6rem 1.4rem;
+      font-size: 0.95rem;
+      font-weight: 500;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: transform 0.08s ease, background 0.2s;
     }
 
     .timer-btn:hover {
       background: var(--primary-dark);
+      transform: translateY(-1px);
     }
 
     #timer-reset-btn {
-      background: transparent;
+      background: rgba(37, 99, 235, 0.1);
       color: var(--primary);
       border: 1px solid var(--primary);
     }
 
     #timer-reset-btn:hover {
-      background: rgba(37, 99, 235, 0.1);
+      background: rgba(37, 99, 235, 0.2);
     }
 
     /* Calendar Widget */
@@ -598,45 +601,45 @@
     <div class="cards-grid">
       <div class="card">
         <h3><i class="bi bi-list-check"></i> Tasks</h3>
-        <p>You have 5 pending tasks to complete today. Stay focused and productive with your to-do list.</p>
+        <p>You have <span th:text="${unfinishedTasks}">0</span> pending tasks to complete today. Stay focused and productive with your to-do list.</p>
         <div class="card-footer">
-          <span class="card-stats">3 high priority</span>
+          <span class="card-stats"><span th:text="${unfinishedTasks}">0</span> pending</span>
           <a href="/tasks" class="card-btn">View Tasks</a>
         </div>
       </div>
 
       <div class="card">
         <h3><i class="bi bi-journal-bookmark"></i> Projects</h3>
-        <p>Track your ongoing courses and learning progress. 2 projects are nearing their deadlines.</p>
+        <p>Track your ongoing courses and learning progress. <span th:text="${projectsCount}">0</span> projects active.</p>
         <div class="card-footer">
-          <span class="card-stats">4 active projects</span>
+          <span class="card-stats"><span th:text="${projectsCount}">0</span> active projects</span>
           <a href="/projects" class="card-btn">View Projects</a>
         </div>
       </div>
 
       <div class="card">
         <h3><i class="bi bi-people"></i> Focus Rooms</h3>
-        <p>Join live study sessions with 12 active users currently focusing together in 3 rooms.</p>
+        <p>Join live study sessions. <span th:text="${focusRoomsCount}">0</span> rooms available.</p>
         <div class="card-footer">
-          <span class="card-stats">3 rooms available</span>
+          <span class="card-stats"><span th:text="${focusRoomsCount}">0</span> rooms available</span>
           <a href="/focus-room" class="card-btn">Browse Rooms</a>
         </div>
       </div>
 
       <div class="card">
         <h3><i class="bi bi-chat-square-text"></i> Notes</h3>
-        <p>Access and organize your study notes. You've created 15 notes across different subjects.</p>
+        <p>Access and organize your study notes. You've created <span th:text="${notesCount}">0</span> notes.</p>
         <div class="card-footer">
-          <span class="card-stats">5 updated today</span>
+          <span class="card-stats"><span th:text="${notesCount}">0</span> total notes</span>
           <a href="/notes" class="card-btn">View Notes</a>
         </div>
       </div>
 
       <div class="card">
         <h3><i class="bi bi-collection"></i> Resources</h3>
-        <p>Your saved study materials and reference documents. 8 new resources added this week.</p>
+        <p>Your saved study materials and reference documents. <span th:text="${resourcesCount}">0</span> total resources.</p>
         <div class="card-footer">
-          <span class="card-stats">42 total resources</span>
+          <span class="card-stats"><span th:text="${resourcesCount}">0</span> total resources</span>
           <a href="/resources" class="card-btn">View Resources</a>
         </div>
       </div>
@@ -751,11 +754,14 @@
   const resetBtn = document.getElementById('timer-reset-btn');
   const progressFill = document.querySelector('.progress-circle-fill');
   const timerState = document.getElementById('timer-state');
+  const STORAGE_KEY = 'focusflow_timer_state_v1';
   
   let totalSeconds = 30 * 60; // 30 minutes default
   let remainingSeconds = totalSeconds;
   let timerInterval;
   let isRunning = false;
+  let endEpochMs = null; // absolute end timestamp when running
+  let sessionStartTotalSeconds = 0; // remainingSeconds at start of session
   const circumference = 565.2; // 2πr (r=90)
   
   function formatTime(seconds) {
@@ -766,49 +772,122 @@
   
   function updateTimerDisplay() {
     timerText.textContent = formatTime(remainingSeconds);
-    const progress = 1 - (remainingSeconds / totalSeconds);
+    const progress = Math.max(0, Math.min(1, 1 - (remainingSeconds / Math.max(1, totalSeconds))));
     progressFill.style.strokeDashoffset = circumference * (1 - progress);
   }
-  
-  function startTimer() {
-    if (isRunning) return;
-    
-    isRunning = true;
-    startBtn.textContent = 'Pause';
-    timerState.textContent = 'Running';
-    timerState.className = 'badge bg-warning';
-    
-    timerInterval = setInterval(() => {
-      remainingSeconds--;
+
+  function saveState() {
+    const state = {
+      totalSeconds,
+      remainingSeconds,
+      isRunning,
+      endEpochMs,
+      sessionStartTotalSeconds
+    };
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      const s = JSON.parse(raw);
+      if (typeof s.totalSeconds === 'number') totalSeconds = s.totalSeconds;
+      if (typeof s.remainingSeconds === 'number') remainingSeconds = s.remainingSeconds;
+      if (typeof s.endEpochMs === 'number') endEpochMs = s.endEpochMs;
+      if (typeof s.sessionStartTotalSeconds === 'number') sessionStartTotalSeconds = s.sessionStartTotalSeconds;
+      if (s.isRunning && endEpochMs) {
+        const now = Date.now();
+        remainingSeconds = Math.max(0, Math.ceil((endEpochMs - now) / 1000));
+        isRunning = remainingSeconds > 0;
+      } else {
+        isRunning = false;
+      }
       updateTimerDisplay();
-      
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  
+  function tick() {
+    const now = Date.now();
+    if (endEpochMs) {
+      remainingSeconds = Math.max(0, Math.ceil((endEpochMs - now) / 1000));
+      updateTimerDisplay();
+      saveState();
       if (remainingSeconds <= 0) {
         clearInterval(timerInterval);
         isRunning = false;
         startBtn.textContent = 'Start';
         timerState.textContent = 'Completed';
         timerState.className = 'badge bg-success';
+        const toPost = Math.max(0, sessionStartTotalSeconds);
+        endEpochMs = null;
+        sessionStartTotalSeconds = 0;
+        saveState();
+        postFocusTime(toPost);
         alert('Focus session completed! Take a short break.');
       }
-    }, 1000);
+    }
+  }
+
+  function startTimer() {
+    if (isRunning) return;
+    isRunning = true;
+    startBtn.textContent = 'Pause';
+    timerState.textContent = 'Running';
+    timerState.className = 'badge bg-warning';
+    if (!endEpochMs) {
+      sessionStartTotalSeconds = remainingSeconds;
+      endEpochMs = Date.now() + remainingSeconds * 1000;
+    }
+    saveState();
+    clearInterval(timerInterval);
+    timerInterval = setInterval(tick, 250);
   }
   
   function pauseTimer() {
+    if (!isRunning) return;
     clearInterval(timerInterval);
     isRunning = false;
     startBtn.textContent = 'Start';
     timerState.textContent = 'Paused';
     timerState.className = 'badge bg-secondary';
+    // compute elapsed in this session and post
+    const elapsed = Math.max(0, sessionStartTotalSeconds - remainingSeconds);
+    if (elapsed > 0) {
+      postFocusTime(elapsed);
+    }
+    // prepare for resume
+    sessionStartTotalSeconds = remainingSeconds;
+    endEpochMs = null;
+    saveState();
   }
   
   function resetTimer() {
     clearInterval(timerInterval);
     isRunning = false;
     remainingSeconds = totalSeconds;
+    endEpochMs = null;
+    sessionStartTotalSeconds = 0;
     updateTimerDisplay();
     startBtn.textContent = 'Start';
     timerState.textContent = 'Ready';
     timerState.className = 'badge bg-success';
+    saveState();
+  }
+
+  async function postFocusTime(elapsedSeconds) {
+    try {
+      await fetch('/api/stats/focus', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ elapsedSeconds })
+      });
+    } catch (e) {
+      console.error('Failed to post focus time', e);
+    }
   }
   
   function parseTimeInput(input) {
@@ -835,9 +914,12 @@
   timerInput.addEventListener('blur', () => {
     const newTime = parseTimeInput(timerInput.value);
     if (newTime !== null) {
+      const wasRunning = isRunning;
+      if (wasRunning) pauseTimer();
       totalSeconds = newTime;
       remainingSeconds = newTime;
       updateTimerDisplay();
+      saveState();
     }
     timerInput.style.display = 'none';
     timerText.style.display = 'block';
@@ -847,13 +929,24 @@
     if (e.key === 'Enter') timerInput.blur();
   });
   
+  // Button responsiveness: quick feedback
   startBtn.addEventListener('click', () => {
-    if (isRunning) pauseTimer();
-    else startTimer();
+    startBtn.style.transform = 'scale(0.98)';
+    setTimeout(() => startBtn.style.transform = '', 80);
+    if (isRunning) pauseTimer(); else startTimer();
   });
   
-  resetBtn.addEventListener('click', resetTimer);
+  resetBtn.addEventListener('click', () => {
+    resetBtn.style.transform = 'scale(0.98)';
+    setTimeout(() => resetBtn.style.transform = '', 80);
+    resetTimer();
+  });
   updateTimerDisplay();
+  // Load persisted timer state and resume if needed
+  loadState();
+  if (isRunning && endEpochMs) {
+    startTimer();
+  }
   
   // Calendar Functionality
   function renderCalendar(date = new Date()) {

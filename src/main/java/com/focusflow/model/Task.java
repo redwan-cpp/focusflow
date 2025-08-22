@@ -14,6 +14,12 @@ public class Task {
     private String priority; // e.g., "HIGH", "MEDIUM", "LOW"
     private boolean completed;
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -22,7 +28,9 @@ public class Task {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    public Task() {}
+    public Task() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -41,6 +49,12 @@ public class Task {
 
     public boolean isCompleted() { return completed; }
     public void setCompleted(boolean completed) { this.completed = completed; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getCompletedAt() { return completedAt; }
+    public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
