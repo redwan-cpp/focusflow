@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Friends | FocusFlow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e40af;
+            --secondary: #60a5fa;
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --text-primary: #E0E0E0;
+            --text-secondary: #9E9E9E;
+            --border: #424242;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background-color: #161b22;
+            border-bottom: 1px solid #30363d;
+            padding: 1rem 2rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #58a6ff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .navbar-brand i {
+            color: var(--secondary);
+        }
+        
+        .nav-right {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #58a6ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            overflow: hidden;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .logo-link {
+            text-decoration: none;
+            color: #58a6ff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s;
+        }
+        
+        .logo-link:hover {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .friends-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .friends-header h2 {
+            color: #58a6ff;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .search-section {
+            background: #161b22;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #30363d;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+        
+        .search-input {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .search-input:focus {
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+            outline: none;
+        }
+        
+        .search-results {
+            display: none;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .search-result-item {
+            padding: 1rem;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-result-item:hover {
+            background-color: #161b22;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #58a6ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            overflow: hidden;
+        }
+        
+        .user-avatar-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-details h5 {
+            margin: 0;
+            color: #58a6ff;
+            font-size: 1rem;
+        }
+        
+        .user-details p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .btn-add-friend {
+            background: #238636;
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-add-friend:hover {
+            background: #2ea043;
+        }
+        
+        .btn-add-friend:disabled {
+            background: #30363d;
+            cursor: not-allowed;
+        }
+        
+        .friends-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .friend-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .friend-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .friend-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .friend-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #58a6ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            overflow: hidden;
+        }
+        
+        .friend-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .friend-info h5 {
+            margin: 0;
+            color: #58a6ff;
+            font-size: 1.1rem;
+        }
+        
+        .friend-info p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .friend-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-message {
+            background: #58a6ff;
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-message:hover {
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .btn-remove {
+            background: #f85149;
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-remove:hover {
+            background: #da3633;
+        }
+        
+        .requests-section {
+            background: #161b22;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #30363d;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+        
+        .requests-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #58a6ff;
+            font-weight: 600;
+        }
+        
+        .request-item {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .request-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .request-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-accept {
+            background: #238636;
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-accept:hover {
+            background: #2ea043;
+        }
+        
+        .btn-reject {
+            background: #f85149;
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-reject:hover {
+            background: #da3633;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #58a6ff;
+        }
+        
+        .notification-badge {
+            background: #f85149;
+            color: white;
+            border-radius: 50%;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        
+        .btn, .btn-primary, .btn-outline-primary {
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar d-flex justify-content-between">
+        <div class="navbar-brand">
+            <a href="/dashboard" class="logo-link">
+                <i class="bi bi-tree"></i>
+                <span>FocusFlow</span>
+            </a>
+        </div>
+        <div class="nav-right">
+            <div class="user-avatar">
+                <img th:if="${user.avatarUrl != null and user.avatarUrl != ''}" th:src="${user.avatarUrl}" alt="Avatar">
+                <span th:if="${user.avatarUrl == null or user.avatarUrl == ''}" th:text="${user.name.substring(0,1)}"></span>
+            </div>
+            <a href="/logout" class="btn btn-sm btn-outline-primary">Logout</a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="friends-header">
+            <h2><i class="bi bi-people"></i> Friends</h2>
+            <div style="position: relative;">
+                <a href="/friends" class="btn btn-primary">
+                    <i class="bi bi-people"></i> Friends
+                    <span th:if="${unreadCount > 0}" class="notification-badge" th:text="${unreadCount}"></span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <h3 style="color: #58a6ff; margin-bottom: 1rem;"><i class="bi bi-search"></i> Find Friends</h3>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search by name or email...">
+            <div id="searchResults" class="search-results"></div>
+        </div>
+
+        <!-- Friend Requests Section -->
+        <div th:if="${!receivedRequests.isEmpty()}" class="requests-section">
+            <div class="requests-header">
+                <i class="bi bi-person-plus"></i>
+                <span>Friend Requests (<span th:text="${receivedRequests.size()}"></span>)</span>
+            </div>
+            <div th:each="request : ${receivedRequests}" class="request-item">
+                <div class="request-info">
+                    <div class="user-avatar-small">
+                        <img th:if="${request.sender.avatarUrl != null and request.sender.avatarUrl != ''}" th:src="${request.sender.avatarUrl}" alt="Avatar">
+                        <span th:if="${request.sender.avatarUrl == null or request.sender.avatarUrl == ''}" th:text="${request.sender.name.substring(0,1)}"></span>
+                    </div>
+                    <div>
+                        <h5 th:text="${request.sender.name}">User Name</h5>
+                        <p th:text="${request.sender.email}">user@email.com</p>
+                    </div>
+                </div>
+                <div class="request-actions">
+                    <button class="btn-accept" th:onclick="'acceptRequest(' + ${request.id} + ')'">
+                        <i class="bi bi-check"></i> Accept
+                    </button>
+                    <button class="btn-reject" th:onclick="'rejectRequest(' + ${request.id} + ')'">
+                        <i class="bi bi-x"></i> Reject
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Friends List -->
+        <div th:if="${!friends.isEmpty()}" class="friends-grid">
+            <div th:each="friend : ${friends}" class="friend-card">
+                <div class="friend-header">
+                    <div class="friend-avatar">
+                        <img th:if="${friend.avatarUrl != null and friend.avatarUrl != ''}" th:src="${friend.avatarUrl}" alt="Avatar">
+                        <span th:if="${friend.avatarUrl == null or friend.avatarUrl == ''}" th:text="${friend.name.substring(0,1)}"></span>
+                    </div>
+                    <div class="friend-info">
+                        <h5 th:text="${friend.name}">Friend Name</h5>
+                        <p th:text="${friend.email}">friend@email.com</p>
+                    </div>
+                </div>
+                <div class="friend-actions">
+                    <a th:href="@{/friends/messages/{friendId}(friendId=${friend.id})}" class="btn-message">
+                        <i class="bi bi-chat"></i> Message
+                    </a>
+                    <button class="btn-remove" th:onclick="'removeFriend(' + ${friend.id} + ')'">
+                        <i class="bi bi-person-x"></i> Remove
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${friends.isEmpty() and receivedRequests.isEmpty()}" class="empty-state">
+            <i class="bi bi-people"></i>
+            <h3>No Friends Yet</h3>
+            <p>Start by searching for friends above or wait for friend requests!</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let searchTimeout;
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                document.getElementById('searchResults').style.display = 'none';
+                return;
+            }
+
+            searchTimeout = setTimeout(() => {
+                searchUsers(query);
+            }, 500); // Increased delay for better performance
+        });
+
+        function searchUsers(query) {
+            // Show loading state
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = '<div class="search-result-item">Searching...</div>';
+            resultsDiv.style.display = 'block';
+            
+            fetch('/friends/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'query=' + encodeURIComponent(query)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Search failed');
+                }
+                return response.json();
+            })
+            .then(users => {
+                displaySearchResults(users);
+            })
+            .catch(error => {
+                console.error('Error searching users:', error);
+                resultsDiv.innerHTML = '<div class="search-result-item">Error searching users. Please try again.</div>';
+            });
+        }
+
+        function displaySearchResults(users) {
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (!Array.isArray(users) || users.length === 0) {
+                resultsDiv.innerHTML = '<div class="search-result-item">No users found</div>';
+            } else {
+                resultsDiv.innerHTML = users.map(user => `
+                    <div class="search-result-item">
+                        <div class="user-info">
+                            <div class="user-avatar-small">
+                                ${user.avatarUrl ? `<img src="${user.avatarUrl}" alt="Avatar">` : `<span>${user.name ? user.name.charAt(0) : 'U'}</span>`}
+                            </div>
+                            <div class="user-details">
+                                <h5>${user.name || 'Unknown User'}</h5>
+                                <p>${user.email || 'No email'}</p>
+                            </div>
+                        </div>
+                        <button class="btn-add-friend" onclick="sendFriendRequest(${user.id})">
+                            <i class="bi bi-person-plus"></i> Add Friend
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            resultsDiv.style.display = 'block';
+        }
+
+        function sendFriendRequest(userId) {
+            fetch('/friends/send-request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'receiverId=' + userId
+            })
+            .then(response => response.text())
+            .then(result => {
+                if (result === 'success') {
+                    alert('Friend request sent successfully!');
+                    document.getElementById('searchInput').value = '';
+                    document.getElementById('searchResults').style.display = 'none';
+                } else if (result === 'already_friends') {
+                    alert('You are already friends with this user!');
+                } else if (result === 'request_exists') {
+                    alert('Friend request already sent!');
+                } else {
+                    alert('Error sending friend request');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error sending friend request');
+            });
+        }
+
+        function acceptRequest(requestId) {
+            fetch('/friends/accept-request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'requestId=' + requestId
+            })
+            .then(response => response.text())
+            .then(result => {
+                if (result === 'success') {
+                    location.reload();
+                } else {
+                    alert('Error accepting friend request');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error accepting friend request');
+            });
+        }
+
+        function rejectRequest(requestId) {
+            fetch('/friends/reject-request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'requestId=' + requestId
+            })
+            .then(response => response.text())
+            .then(result => {
+                if (result === 'success') {
+                    location.reload();
+                } else {
+                    alert('Error rejecting friend request');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error rejecting friend request');
+            });
+        }
+
+        function removeFriend(friendId) {
+            if (confirm('Are you sure you want to remove this friend?')) {
+                fetch('/friends/remove-friend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'friendId=' + friendId
+                })
+                .then(response => response.text())
+                .then(result => {
+                    if (result === 'success') {
+                        location.reload();
+                    } else {
+                        alert('Error removing friend');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error removing friend');
+                });
+            }
+        }
+
+        // Close search results when clicking outside
+        document.addEventListener('click', function(event) {
+            const searchResults = document.getElementById('searchResults');
+            const searchInput = document.getElementById('searchInput');
+            
+            if (!searchResults.contains(event.target) && !searchInput.contains(event.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

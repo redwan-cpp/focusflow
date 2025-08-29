@@ -46,6 +46,42 @@ public class User {
     @ManyToMany(mappedBy = "participants")
     private Set<FocusRoom> focusRooms = new HashSet<>();
 
+    // Friend relationships
+    @ManyToMany
+    @JoinTable(
+        name = "user_friends",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "friend_id")
+    )
+    private Set<User> friends = new HashSet<>();
+
+    @ManyToMany(mappedBy = "friends")
+    private Set<User> friendOf = new HashSet<>();
+
+    // Friend requests
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FriendRequest> sentFriendRequests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FriendRequest> receivedFriendRequests = new ArrayList<>();
+
+    // Messages
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Message> sentMessages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Message> receivedMessages = new ArrayList<>();
+
+    // Transient fields for UI
+    @Transient
+    private boolean isFriend = false;
+
+    @Transient
+    private boolean hasPendingRequest = false;
+
+    @Transient
+    private long unreadMessageCount = 0;
+
     public User() {
         // set current time on creation
         this.createdAt = new Timestamp(System.currentTimeMillis());
@@ -99,5 +135,94 @@ public class User {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    // Friend methods
+    public Set<User> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(Set<User> friends) {
+        this.friends = friends;
+    }
+
+    public Set<User> getFriendOf() {
+        return friendOf;
+    }
+
+    public void setFriendOf(Set<User> friendOf) {
+        this.friendOf = friendOf;
+    }
+
+    public List<FriendRequest> getSentFriendRequests() {
+        return sentFriendRequests;
+    }
+
+    public void setSentFriendRequests(List<FriendRequest> sentFriendRequests) {
+        this.sentFriendRequests = sentFriendRequests;
+    }
+
+    public List<FriendRequest> getReceivedFriendRequests() {
+        return receivedFriendRequests;
+    }
+
+    public void setReceivedFriendRequests(List<FriendRequest> receivedFriendRequests) {
+        this.receivedFriendRequests = receivedFriendRequests;
+    }
+
+    public List<Message> getSentMessages() {
+        return sentMessages;
+    }
+
+    public void setSentMessages(List<Message> sentMessages) {
+        this.sentMessages = sentMessages;
+    }
+
+    public List<Message> getReceivedMessages() {
+        return receivedMessages;
+    }
+
+    public void setReceivedMessages(List<Message> receivedMessages) {
+        this.receivedMessages = receivedMessages;
+    }
+
+    // Transient field getters and setters
+    public boolean isFriend() {
+        return isFriend;
+    }
+
+    public void setIsFriend(boolean isFriend) {
+        this.isFriend = isFriend;
+    }
+
+    public boolean isHasPendingRequest() {
+        return hasPendingRequest;
+    }
+
+    public void setHasPendingRequest(boolean hasPendingRequest) {
+        this.hasPendingRequest = hasPendingRequest;
+    }
+
+    public long getUnreadMessageCount() {
+        return unreadMessageCount;
+    }
+
+    public void setUnreadMessageCount(long unreadMessageCount) {
+        this.unreadMessageCount = unreadMessageCount;
+    }
+
+    // Helper methods
+    public void addFriend(User friend) {
+        this.friends.add(friend);
+        friend.getFriends().add(this);
+    }
+
+    public void removeFriend(User friend) {
+        this.friends.remove(friend);
+        friend.getFriends().remove(this);
+    }
+
+    public boolean isFriendWith(User user) {
+        return this.friends.contains(user);
     }
 }

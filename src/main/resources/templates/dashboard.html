@@ -88,6 +88,13 @@
       align-items: center;
       justify-content: center;
       font-weight: 600;
+      overflow: hidden;
+    }
+    
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     /* Dashboard Layout */
@@ -143,6 +150,133 @@
 
     .nav-item i {
       font-size: 1.1rem;
+    }
+
+    /* Notifications Panel */
+    .notifications-panel {
+      background: #161b22;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #30363d;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    .notifications-header h3 {
+      color: #58a6ff;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .notification-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .notification-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .notification-section h4 {
+      color: #58a6ff;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .notification-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .notification-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: #0d1117;
+      border-radius: 8px;
+      border: 1px solid #30363d;
+    }
+
+    .notification-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #58a6ff;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .notification-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .notification-content {
+      flex: 1;
+    }
+
+    .notification-content p {
+      margin: 0 0 0.5rem 0;
+      color: #c9d1d9;
+    }
+
+    .notification-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-accept {
+      background: #238636;
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-accept:hover {
+      background: #2ea043;
+    }
+
+    .btn-reject {
+      background: #f85149;
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-reject:hover {
+      background: #da3633;
+    }
+
+    .view-messages-link {
+      color: #58a6ff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .view-messages-link:hover {
+      color: #3b82f6;
+      text-decoration: underline;
     }
 
     /* Main Content */
@@ -470,6 +604,12 @@
       font-weight: 500;
     }
 
+    .calendar-day.focused {
+      outline: 2px solid var(--primary);
+      outline-offset: -2px;
+      border-radius: 6px;
+    }
+
     .calendar-day.other-month {
       color: #616161;
     }
@@ -544,7 +684,10 @@
     </a>
   </div>
   <div class="nav-right">
-    <div class="user-avatar" th:text="${user.name.substring(0,1)}"></div>
+    <div class="user-avatar">
+      <img th:if="${user.avatarUrl != null and user.avatarUrl != ''}" th:src="${user.avatarUrl}" alt="Avatar">
+      <span th:if="${user.avatarUrl == null or user.avatarUrl == ''}" th:text="${user.name.substring(0,1)}"></span>
+    </div>
     <a href="/logout" class="btn btn-sm btn-outline-primary">Logout</a>
   </div>
 </nav>
@@ -580,6 +723,14 @@
       <i class="bi bi-graph-up"></i>
       <span>Statistics</span>
     </a>
+    <a href="/people" class="nav-item">
+      <i class="bi bi-people"></i>
+      <span>People</span>
+    </a>
+    <a href="/messages" class="nav-item">
+      <i class="bi bi-chat-dots"></i>
+      <span>Messages</span>
+    </a>
     <a href="/profile" class="nav-item">
       <i class="bi bi-person"></i>
       <span>Profile</span>
@@ -595,6 +746,43 @@
       </div>
       <div class="welcome-icon">
         <i class="bi bi-emoji-smile"></i>
+      </div>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div th:if="${!receivedRequests.isEmpty() or unreadMessages > 0}" class="notifications-panel">
+      <div class="notifications-header">
+        <h3><i class="bi bi-bell"></i> Notifications</h3>
+      </div>
+      
+      <!-- Friend Requests -->
+      <div th:if="${!receivedRequests.isEmpty()}" class="notification-section">
+        <h4><i class="bi bi-person-plus"></i> Friend Requests (<span th:text="${receivedRequests.size()}"></span>)</h4>
+        <div class="notification-list">
+          <div th:each="request : ${receivedRequests}" class="notification-item">
+            <div class="notification-avatar">
+              <img th:if="${request.sender.avatarUrl != null and request.sender.avatarUrl != ''}" th:src="${request.sender.avatarUrl}" alt="Avatar">
+              <span th:if="${request.sender.avatarUrl == null or request.sender.avatarUrl == ''}" th:text="${request.sender.name.substring(0,1)}"></span>
+            </div>
+            <div class="notification-content">
+              <p><strong th:text="${request.sender.name}"></strong> sent you a friend request</p>
+              <div class="notification-actions">
+                <button class="btn-accept" th:onclick="'acceptRequest(' + ${request.id} + ')'">
+                  <i class="bi bi-check"></i> Accept
+                </button>
+                <button class="btn-reject" th:onclick="'rejectRequest(' + ${request.id} + ')'">
+                  <i class="bi bi-x"></i> Reject
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Unread Messages -->
+      <div th:if="${unreadMessages > 0}" class="notification-section">
+        <h4><i class="bi bi-chat"></i> Unread Messages (<span th:text="${unreadMessages}"></span>)</h4>
+        <p>You have <span th:text="${unreadMessages}"></span> unread message(s). <a href="/messages" class="view-messages-link">View Messages</a></p>
       </div>
     </div>
 
@@ -708,15 +896,15 @@
       </div>
       <div class="stats-item">
         <span class="stats-label">Focus Time</span>
-        <span class="stats-value">2h 45m</span>
+        <span class="stats-value" id="today-focus">0h 0m</span>
       </div>
       <div class="stats-item">
         <span class="stats-label">Tasks Completed</span>
-        <span class="stats-value">7/12</span>
+        <span class="stats-value" id="today-tasks">0</span>
       </div>
       <div class="stats-item">
         <span class="stats-label">Pomodoros</span>
-        <span class="stats-value">5</span>
+        <span class="stats-value" id="today-pomos">0</span>
       </div>
       <div class="stats-item">
         <span class="stats-label">Productivity</span>
@@ -826,7 +1014,7 @@
         endEpochMs = null;
         sessionStartTotalSeconds = 0;
         saveState();
-        postFocusTime(toPost);
+        postFocusTime(toPost, true);
         alert('Focus session completed! Take a short break.');
       }
     }
@@ -857,7 +1045,7 @@
     // compute elapsed in this session and post
     const elapsed = Math.max(0, sessionStartTotalSeconds - remainingSeconds);
     if (elapsed > 0) {
-      postFocusTime(elapsed);
+      postFocusTime(elapsed, false);
     }
     // prepare for resume
     sessionStartTotalSeconds = remainingSeconds;
@@ -878,13 +1066,22 @@
     saveState();
   }
 
-  async function postFocusTime(elapsedSeconds) {
+  async function postFocusTime(elapsedSeconds, completed=false) {
     try {
-      await fetch('/api/stats/focus', {
+      const res = await fetch('/api/stats/focus', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ elapsedSeconds })
+        body: JSON.stringify({ elapsedSeconds, completed })
       });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof data.todayMinutes === 'number') {
+          document.getElementById('today-focus').textContent = `${Math.floor(data.todayMinutes/60)}h ${data.todayMinutes%60}m`;
+        }
+        if (typeof data.todayPomodoros === 'number') {
+          document.getElementById('today-pomos').textContent = data.todayPomodoros;
+        }
+      }
     } catch (e) {
       console.error('Failed to post focus time', e);
     }
@@ -1001,6 +1198,55 @@
     }
   }
   
+  async function refreshTodayStats() {
+    try {
+      const res = await fetch('/api/stats/today');
+      if (res.ok) {
+        const d = await res.json();
+        if (typeof d.todayMinutes === 'number') {
+          document.getElementById('today-focus').textContent = `${Math.floor(d.todayMinutes/60)}h ${d.todayMinutes%60}m`;
+        }
+        if (typeof d.todayTasksCompleted === 'number') {
+          document.getElementById('today-tasks').textContent = d.todayTasksCompleted;
+        }
+        if (typeof d.todayPomodoros === 'number') {
+          document.getElementById('today-pomos').textContent = d.todayPomodoros;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load today stats', e);
+    }
+  }
+
+  async function annotateCalendar(date = new Date()) {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 1-based
+    try {
+      const res = await fetch(`/api/stats/month?year=${year}&month=${month}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const minutes = data.minutes || [];
+      const grid = document.getElementById('calendar-grid');
+      const dayCells = Array.from(grid.children).slice(7); // skip headers
+      // remove 'focused'
+      dayCells.forEach(cell => cell.classList.remove('focused'));
+      let dayIndex = 0;
+      // find first current-month cell
+      for (const cell of dayCells) {
+        if (!cell.classList.contains('other-month')) break; else dayIndex++;
+      }
+      for (let i = 0; i < minutes.length; i++) {
+        const idx = dayIndex + i;
+        if (dayCells[idx] && minutes[i] > 0) {
+          dayCells[idx].classList.add('focused');
+          dayCells[idx].title = `${Math.floor(minutes[i]/60)}h ${minutes[i]%60}m`;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to annotate calendar', e);
+    }
+  }
+  
   document.getElementById('calendar-prev').addEventListener('click', () => {
     const currentMonth = document.querySelector('.calendar-header h3').textContent;
     const date = new Date(currentMonth + ' 1');
@@ -1016,6 +1262,65 @@
   });
   
   renderCalendar();
+  refreshTodayStats();
+  annotateCalendar(new Date());
+  document.getElementById('calendar-prev').addEventListener('click', () => {
+    const currentMonth = document.querySelector('.calendar-header h3').textContent;
+    const date = new Date(currentMonth + ' 1');
+    date.setMonth(date.getMonth() - 1);
+    annotateCalendar(date);
+  });
+  document.getElementById('calendar-next').addEventListener('click', () => {
+    const currentMonth = document.querySelector('.calendar-header h3').textContent;
+    const date = new Date(currentMonth + ' 1');
+    date.setMonth(date.getMonth() + 1);
+    annotateCalendar(date);
+  });
+
+  // Friend request functions
+  function acceptRequest(requestId) {
+    fetch('/people/accept-request', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'requestId=' + requestId
+    })
+    .then(response => response.text())
+    .then(result => {
+      if (result === 'success') {
+        location.reload();
+      } else {
+        alert('Error accepting friend request');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error accepting friend request');
+    });
+  }
+
+  function rejectRequest(requestId) {
+    fetch('/people/reject-request', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'requestId=' + requestId
+    })
+    .then(response => response.text())
+    .then(result => {
+      if (result === 'success') {
+        location.reload();
+      } else {
+        alert('Error rejecting friend request');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error rejecting friend request');
+    });
+  }
 </script>
 
 </body>

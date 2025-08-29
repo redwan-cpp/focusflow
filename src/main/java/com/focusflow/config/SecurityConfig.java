@@ -8,6 +8,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class SecurityConfig {
@@ -28,7 +29,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, DaoAuthenticationProvider authProvider) throws Exception {
         http
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/people/**"))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/register", "/css/**").permitAll()
                 .anyRequest().authenticated())
@@ -37,6 +38,7 @@ public class SecurityConfig {
                 .defaultSuccessUrl("/dashboard", true)
                 .permitAll())
             .logout(logout -> logout
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                 .logoutSuccessUrl("/login?logout")
                 .permitAll())
             .authenticationProvider(authProvider);

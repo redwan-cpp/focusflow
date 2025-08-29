@@ -44,6 +44,9 @@ public class Resource {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     // Helper method to get file icon based on type
     public String getFileIcon() {

@@ -86,14 +86,19 @@ public class StatsController {
 
     @PostMapping("/api/stats/focus")
     @ResponseBody
-    public ResponseEntity<?> addFocusTime(@RequestBody Map<String, Integer> body, Principal principal) {
+    public ResponseEntity<?> addFocusTime(@RequestBody Map<String, Object> body, Principal principal) {
         User user = userRepository.findByEmail(principal.getName()).orElse(null);
         if (user == null) {
             return ResponseEntity.status(401).build();
         }
-        int elapsedSeconds = body.getOrDefault("elapsedSeconds", 0);
+        int elapsedSeconds = ((Number) body.getOrDefault("elapsedSeconds", 0)).intValue();
         if (elapsedSeconds <= 0) {
             return ResponseEntity.badRequest().body("elapsedSeconds must be > 0");
+        }
+        boolean completed = false;
+        Object completedObj = body.get("completed");
+        if (completedObj instanceof Boolean) {
+            completed = (Boolean) completedObj;
         }
 
         LocalDate today = LocalDate.now();
@@ -108,6 +113,9 @@ public class StatsController {
         });
         int addedMinutes = Math.floorDiv(elapsedSeconds, 60);
         stat.setFocusTimeMinutes(stat.getFocusTimeMinutes() + addedMinutes);
+        if (completed) {
+            stat.setPomodoros(stat.getPomodoros() + 1);
+        }
         statisticRepository.save(stat);
 
         // Prepare lightweight summary for UI
@@ -115,11 +123,55 @@ public class StatsController {
         LocalDate weekEnd = weekStart.plusDays(6);
         int weekFocusMinutes = statisticRepository.sumFocusTimeMinutesBetween(user, weekStart, weekEnd);
         int todayMinutes = stat.getFocusTimeMinutes();
+        int todayPomodoros = stat.getPomodoros();
 
         return ResponseEntity.ok(Map.of(
                 "todayMinutes", todayMinutes,
-                "weekMinutes", weekFocusMinutes
+                "weekMinutes", weekFocusMinutes,
+                "todayPomodoros", todayPomodoros
         ));
+    }
+
+    @GetMapping("/api/stats/today")
+    @ResponseBody
+    public ResponseEntity<?> getTodayStats(Principal principal) {
+        User user = userRepository.findByEmail(principal.getName()).orElse(null);
+        if (user == null) return ResponseEntity.status(401).build();
+        LocalDate today = LocalDate.now();
+        Statistic stat = statisticRepository.findByUserAndDate(user, today)
+                .orElseGet(() -> {
+                    Statistic s = new Statistic();
+                    s.setUser(user);
+                    s.setDate(today);
+                    s.setFocusTimeMinutes(0);
+                    s.setTasksCompleted(0);
+                    s.setPomodoros(0);
+                    return s;
+                });
+        // productivity today based on due today (optional simple metric)
+        return ResponseEntity.ok(Map.of(
+                "todayMinutes", stat.getFocusTimeMinutes(),
+                "todayTasksCompleted", stat.getTasksCompleted(),
+                "todayPomodoros", stat.getPomodoros()
+        ));
+    }
+
+    @GetMapping("/api/stats/month")
+    @ResponseBody
+    public ResponseEntity<?> getMonthStats(@RequestParam int year, @RequestParam int month, Principal principal) {
+        User user = userRepository.findByEmail(principal.getName()).orElse(null);
+        if (user == null) return ResponseEntity.status(401).build();
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+        // Build an array mapping day->minutes
+        int days = start.lengthOfMonth();
+        int[] minutes = new int[days];
+        for (int d = 1; d <= days; d++) {
+            LocalDate date = LocalDate.of(year, month, d);
+            int m = statisticRepository.findByUserAndDate(user, date).map(Statistic::getFocusTimeMinutes).orElse(0);
+            minutes[d - 1] = m;
+        }
+        return ResponseEntity.ok(Map.of("minutes", minutes));
     }
 }
 

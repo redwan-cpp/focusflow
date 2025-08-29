@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Messages | FocusFlow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e40af;
+            --secondary: #60a5fa;
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --text-primary: #E0E0E0;
+            --text-secondary: #9E9E9E;
+            --border: #424242;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background-color: #161b22;
+            border-bottom: 1px solid #30363d;
+            padding: 1rem 2rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #58a6ff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .navbar-brand i {
+            color: var(--secondary);
+        }
+        
+        .nav-right {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #58a6ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            overflow: hidden;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .logo-link {
+            text-decoration: none;
+            color: #58a6ff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s;
+        }
+        
+        .logo-link:hover {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        
+        .main-content {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .chat-container {
+            background: #161b22;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: #0d1117;
+            border-bottom: 1px solid #30363d;
+            padding: 1rem 1.5rem;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .friend-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #58a6ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            overflow: hidden;
+        }
+        
+        .friend-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .friend-info h5 {
+            margin: 0;
+            color: #58a6ff;
+            font-size: 1.1rem;
+        }
+        
+        .friend-info p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: #58a6ff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: #0d1117;
+        }
+        
+        .messages-container {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+            max-width: 70%;
+        }
+        
+        .message.sent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        
+        .message.received {
+            align-self: flex-start;
+        }
+        
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #58a6ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .message-content {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            color: #c9d1d9;
+            word-wrap: break-word;
+        }
+        
+        .message.sent .message-content {
+            background: #58a6ff;
+            color: white;
+            border-color: #58a6ff;
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+            text-align: right;
+        }
+        
+        .message.received .message-time {
+            text-align: left;
+        }
+        
+        .chat-input-container {
+            background: #0d1117;
+            border-top: 1px solid #30363d;
+            padding: 1rem 1.5rem;
+            border-radius: 0 0 12px 12px;
+        }
+        
+        .chat-input-form {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        
+        .message-input {
+            flex: 1;
+            background: #161b22;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            resize: none;
+            min-height: 40px;
+            max-height: 120px;
+            font-family: inherit;
+        }
+        
+        .message-input:focus {
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+            outline: none;
+        }
+        
+        .send-btn {
+            background: #58a6ff;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-weight: 500;
+        }
+        
+        .send-btn:hover {
+            background: #3b82f6;
+        }
+        
+        .send-btn:disabled {
+            background: #30363d;
+            cursor: not-allowed;
+        }
+        
+        .empty-messages {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-messages i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #58a6ff;
+        }
+        
+        .btn, .btn-primary, .btn-outline-primary {
+            border-radius: 8px;
+        }
+        
+        /* Scrollbar styling */
+        .messages-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .messages-container::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        
+        .messages-container::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 3px;
+        }
+        
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background: #58a6ff;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar d-flex justify-content-between">
+        <div class="navbar-brand">
+            <a href="/dashboard" class="logo-link">
+                <i class="bi bi-tree"></i>
+                <span>FocusFlow</span>
+            </a>
+        </div>
+        <div class="nav-right">
+            <div class="user-avatar">
+                <img th:if="${user.avatarUrl != null and user.avatarUrl != ''}" th:src="${user.avatarUrl}" alt="Avatar">
+                <span th:if="${user.avatarUrl == null or user.avatarUrl == ''}" th:text="${user.name.substring(0,1)}"></span>
+            </div>
+            <a href="/logout" class="btn btn-sm btn-outline-primary">Logout</a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-header-left">
+                    <div class="friend-avatar">
+                        <img th:if="${friend.avatarUrl != null and friend.avatarUrl != ''}" th:src="${friend.avatarUrl}" alt="Avatar">
+                        <span th:if="${friend.avatarUrl == null or friend.avatarUrl == ''}" th:text="${friend.name.substring(0,1)}"></span>
+                    </div>
+                    <div class="friend-info">
+                        <h5 th:text="${friend.name}">Friend Name</h5>
+                        <p th:text="${friend.email}">friend@email.com</p>
+                    </div>
+                </div>
+                <a href="/friends" class="back-btn">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+            </div>
+            
+            <div class="messages-container" id="messagesContainer">
+                <div th:if="${messages.isEmpty()}" class="empty-messages">
+                    <i class="bi bi-chat"></i>
+                    <h4>No messages yet</h4>
+                    <p>Start a conversation with <span th:text="${friend.name}"></span>!</p>
+                </div>
+                
+                <div th:each="message : ${messages}" 
+                     th:class="${message.sender.id == user.id ? 'message sent' : 'message received'}">
+                    <div class="message-avatar">
+                        <img th:if="${message.sender.avatarUrl != null and message.sender.avatarUrl != ''}" th:src="${message.sender.avatarUrl}" alt="Avatar">
+                        <span th:if="${message.sender.avatarUrl == null or message.sender.avatarUrl == ''}" th:text="${message.sender.name.substring(0,1)}"></span>
+                    </div>
+                    <div>
+                        <div class="message-content" th:text="${message.content}">Message content</div>
+                        <div class="message-time" th:text="${#temporals.format(message.createdAt, 'HH:mm')}">12:00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <form class="chat-input-form" id="messageForm">
+                    <textarea 
+                        class="message-input" 
+                        id="messageInput" 
+                        placeholder="Type your message..." 
+                        rows="1"
+                        maxlength="1000"></textarea>
+                    <button type="submit" class="send-btn" id="sendBtn">
+                        <i class="bi bi-send"></i> Send
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageForm = document.getElementById('messageForm');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const friendId = [[${friend.id}]];
+        
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+        
+        // Send message on Enter (but allow Shift+Enter for new line)
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Send message on form submit
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            sendMessage();
+        });
+        
+        function sendMessage() {
+            const content = messageInput.value.trim();
+            if (!content) return;
+            
+            // Disable input and button
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+            
+            fetch('/friends/send-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'receiverId=' + friendId + '&content=' + encodeURIComponent(content)
+            })
+            .then(response => response.text())
+            .then(result => {
+                if (result === 'success') {
+                    // Add message to UI
+                    addMessageToUI(content, true);
+                    messageInput.value = '';
+                    messageInput.style.height = 'auto';
+                } else {
+                    alert('Error sending message');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error sending message');
+            })
+            .finally(() => {
+                // Re-enable input and button
+                messageInput.disabled = false;
+                sendBtn.disabled = false;
+                messageInput.focus();
+            });
+        }
+        
+        function addMessageToUI(content, isSent) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isSent ? 'message sent' : 'message received';
+            
+            const currentTime = new Date().toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+            });
+            
+            const userInitial = [[${user.name.substring(0,1)}]];
+            const userAvatarUrl = [[${user.avatarUrl}]];
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    ${userAvatarUrl ? `<img src="${userAvatarUrl}" alt="Avatar">` : `<span>${userInitial}</span>`}
+                </div>
+                <div>
+                    <div class="message-content">${content}</div>
+                    <div class="message-time">${currentTime}</div>
+                </div>
+            `;
+            
+            // Remove empty state if it exists
+            const emptyState = messagesContainer.querySelector('.empty-messages');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Scroll to bottom on page load
+        window.addEventListener('load', scrollToBottom);
+        
+        // Auto-refresh messages every 5 seconds
+        setInterval(() => {
+            location.reload();
+        }, 5000);
+    </script>
+</body>
+</html>

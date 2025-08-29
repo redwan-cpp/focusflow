@@ -17,19 +17,25 @@ public class DashboardController {
     private final NoteRepository noteRepository;
     private final ResourceRepository resourceRepository;
     private final FocusRoomRepository focusRoomRepository;
+    private final FriendRequestRepository friendRequestRepository;
+    private final MessageRepository messageRepository;
 
     public DashboardController(UserRepository userRepository,
                                TaskRepository taskRepository,
                                ProjectRepository projectRepository,
                                NoteRepository noteRepository,
                                ResourceRepository resourceRepository,
-                               FocusRoomRepository focusRoomRepository) {
+                               FocusRoomRepository focusRoomRepository,
+                               FriendRequestRepository friendRequestRepository,
+                               MessageRepository messageRepository) {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.noteRepository = noteRepository;
         this.resourceRepository = resourceRepository;
         this.focusRoomRepository = focusRoomRepository;
+        this.friendRequestRepository = friendRequestRepository;
+        this.messageRepository = messageRepository;
     }
 
     @GetMapping("/dashboard")
@@ -42,6 +48,10 @@ public class DashboardController {
         long resourcesCount = resourceRepository.findByUserIdOrderByCreatedAtDesc(user.getId()).size();
         int notesCount = noteRepository.findByUserOrderByIsPinnedDescUpdatedAtDesc(user).size();
         long focusRoomsCount = focusRoomRepository.count();
+        
+        // Get notifications
+        var receivedRequests = friendRequestRepository.findReceivedPendingRequests(user);
+        long unreadMessages = messageRepository.countUnreadMessagesForUser(user);
 
         model.addAttribute("user", user);
         model.addAttribute("unfinishedTasks", unfinishedTasks);
@@ -49,6 +59,8 @@ public class DashboardController {
         model.addAttribute("resourcesCount", resourcesCount);
         model.addAttribute("notesCount", notesCount);
         model.addAttribute("focusRoomsCount", focusRoomsCount);
+        model.addAttribute("receivedRequests", receivedRequests);
+        model.addAttribute("unreadMessages", unreadMessages);
         return "dashboard";
     }
 }
